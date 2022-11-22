@@ -4,8 +4,8 @@
 
 @push('css')
     <meta name="csrf-token" content="{{ csrf_token() }}">
-	<link href="/assets/plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
-	<link href="/assets/plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" />
+    <link href="/assets/plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="/assets/plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" />
     <link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
     <link href="/assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
@@ -20,24 +20,29 @@
             <h1 class="page-header mb-0">Machines</h1>
         </div>
         <div class="ms-auto">
-            <a type="button" class="btn btn-success btn-rounded px-4" onclick="create()"><i class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add Machines</a>
+            <a type="button" class="btn btn-success btn-rounded px-4" onclick="create()"><i
+                    class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add Machines</a>
         </div>
     </div>
-	<!-- BEGIN panel -->
-	<div class="panel panel-inverse">
-		<!-- BEGIN panel-heading -->
-		<div class="panel-heading">
-			<h4 class="panel-title">Data Machines</h4>
-			<div class="panel-heading-btn">
-				<a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
-				<a type="button" onclick="reloadTable()" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
-				<a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i class="fa fa-minus"></i></a>
-				<a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i class="fa fa-times"></i></a>
-			</div>
-		</div>
-		<!-- END panel-heading -->
-		<!-- BEGIN panel-body -->
-		<div class="panel-body">
+    <!-- BEGIN panel -->
+    <div class="panel panel-inverse">
+        <!-- BEGIN panel-heading -->
+        <div class="panel-heading">
+            <h4 class="panel-title">Data Machines</h4>
+            <div class="panel-heading-btn">
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i
+                        class="fa fa-expand"></i></a>
+                <a type="button" onclick="reloadTable()" class="btn btn-xs btn-icon btn-success"
+                    data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i
+                        class="fa fa-minus"></i></a>
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i
+                        class="fa fa-times"></i></a>
+            </div>
+        </div>
+        <!-- END panel-heading -->
+        <!-- BEGIN panel-body -->
+        <div class="panel-body">
             <div class="table-responsive">
                 <table id="daTable" class="table table-striped table-bordered align-middle">
                     <thead>
@@ -53,59 +58,63 @@
                     </tbody>
                 </table>
             </div>
-		</div>
-		<!-- END panel-body -->
-	</div>
-	<!-- END panel -->
+        </div>
+        <!-- END panel-body -->
+    </div>
+    <!-- END panel -->
     <!-- #modal-dialog -->
     <div class="modal fade" id="userModal" role="dialog">
         <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-light">
-                <h4 class="modal-title">Modal Dialog</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+            <div class="modal-content">
+                <div class="modal-header bg-success text-light">
+                    <h4 class="modal-title">Modal Dialog</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" data-parsley-validate="true" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="Line">Line* :</label>
+                            <select name="line_id" id="Line" class="select2 form-control" data-parsley-required="true">
+                                <option value=""></option>
+                                @foreach ($lines as $item)
+                                    <option value="{{ $item->id }}">{{ $item->txtlinename }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="Name">Machine Name* :</label>
+                            <input type="text" id="Name" name="txtmachinename" class="form-control"
+                                placeholder="Enter Machine Name" data-parsley-required="true"
+                                oninput="this.value = this.value.toUpperCase()" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Machine Picture: </label>
+                            <input class="form-control" type="file" id="formFile" name="txtpicture"
+                                onchange="preview()">
+                        </div>
+                        <div class="mb-3">
+                            <img id="previewImg" src="/assets/img/machine/default.png" alt="Preview Machine"
+                                class="img-thumbnail mx-auto d-block" style="width: 50%">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
+                    <button type="submit" class="btn btn-success">Action</button>
+                </div>
+                </form>
             </div>
-            <div class="modal-body">
-            <form action="" method="post" data-parsley-validate="true" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="Line">Line* :</label>
-                    <select name="line_id" id="Line" class="select2 form-control" data-parsley-required="true">
-                        <option value=""></option>
-                        @foreach ($lines as $item)
-                            <option value="{{ $item->id }}">{{ $item->txtlinename }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="Name">Machine Name* :</label>
-                    <input type="text" id="Name" name="txtmachinename" class="form-control" placeholder="Enter Machine Name" data-parsley-required="true" oninput="this.value = this.value.toUpperCase()"/>
-                </div>
-                <div class="mb-3">
-                    <label for="formFile" class="form-label">Machine Picture: </label>
-                    <input class="form-control" type="file" id="formFile" name="txtpicture" onchange="preview()">
-                </div>
-                <div class="mb-3">
-                    <img id="previewImg" src="/assets/img/machine/default.jpg" alt="Preview Machine" class="img-thumbnail mx-auto d-block" style="width: 50%">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
-                <button type="submit" class="btn btn-success">Action</button>
-            </div>
-            </form>
-        </div>
         </div>
     </div>
     <!-- End-Modal-Dialog -->
 @endsection
 
 @push('scripts')
-	<script src="/assets/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
-	<script src="/assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-	<script src="/assets/plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-	<script src="/assets/plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
-	<script src="/assets/plugins/@highlightjs/cdn-assets/highlight.min.js"></script>
-	<script src="/assets/js/demo/render.highlight.js"></script>
+    <script src="/assets/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="/assets/plugins/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/assets/plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
+    <script src="/assets/plugins/@highlightjs/cdn-assets/highlight.min.js"></script>
+    <script src="/assets/js/demo/render.highlight.js"></script>
     <script src="/assets/plugins/parsleyjs/dist/parsley.min.js"></script>
     <script src="/assets/plugins/gritter/js/jquery.gritter.js"></script>
     <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
@@ -120,33 +129,44 @@
         });
         var daTable = $('#daTable').DataTable({
             ajax: "{{ route('manage.machine.list') }}",
-			processing: true,
-        	serverSide: true,
-            columns: [
-                {data: 'DT_RowIndex'},
-                {data: 'txtlinename'},
-                {data: 'txtmachinename'},
+            processing: true,
+            serverSide: true,
+            columns: [{
+                    data: 'DT_RowIndex'
+                },
                 {
-					data: 'txtpicture', name:'Picture',
-					render: function(data){
-						let img = '<img src="/assets/img/machine/'+data+'" width="64">';
-						return img;
-					}
-				},
-                {data: 'action'}
+                    data: 'txtlinename'
+                },
+                {
+                    data: 'txtmachinename'
+                },
+                {
+                    data: 'txtpicture',
+                    name: 'Picture',
+                    render: function(data) {
+                        let img = '<img src="/assets/img/machine/' + data + '" width="64">';
+                        return img;
+                    }
+                },
+                {
+                    data: 'action'
+                }
             ]
         });
-        function getUrl(){
+
+        function getUrl() {
             return action;
         }
-        function getMethod(){
+
+        function getMethod() {
             return method;
         }
-        function reloadTable(){
-            daTable.draw();
+
+        function reloadTable() {
+            daTable.ajax.reload(null, false);
         }
-        function preview()
-        {
+
+        function preview() {
             const gambar = document.querySelector('#formFile');
             const imgPreview = document.querySelector('#previewImg')
             //mengganti preview
@@ -156,18 +176,20 @@
                 imgPreview.src = e.target.result;
             }
         }
-        function create(){
+
+        function create() {
             $('#userModal').modal('show');
             $('.modal-body form')[0].reset();
             $('.modal-body form').find('input[name="_method"]').remove();
             $('.select2').val(0).trigger('change');
             $('.modal-header h4').html('Create Machines');
             $('.modal-footer .btn-success').text('Save');
-            $('img#previewImg').attr('src','/assets/img/machine/default.jpg');
+            $('img#previewImg').attr('src', '/assets/img/machine/default.jpg');
             action = "{{ route('manage.machine.store') }}";
             method = "POST";
         }
-        function edit(id){
+
+        function edit(id) {
             $('.modal-header h4').html('Edit Machines');
             $('.modal-footer .btn-success').text('Update');
             $('.modal-body form')[0].reset();
@@ -182,14 +204,15 @@
                 url: editUrl,
                 type: "GET",
                 dataType: "JSON",
-                success: function(response){
+                success: function(response) {
                     $('input[name="txtmachinename"]').val(response.machine.txtmachinename);
                     $('select[name="line_id"]').val(response.machine.line_id).trigger('change');
-                    $('#previewImg').attr('src', '/assets/img/machine/'+response.machine.txtpicture);
+                    $('#previewImg').attr('src', '/assets/img/machine/' + response.machine.txtpicture);
                 }
             })
         }
-        function destroy(id){
+
+        function destroy(id) {
             let deleteUrl = "{{ route('manage.machine.destroy', ':id') }}";
             deleteUrl = deleteUrl.replace(':id', id);
             let orFail = '';
@@ -214,7 +237,7 @@
                     }
                 }
             }).then((isConfirm) => {
-				if (isConfirm) {
+                if (isConfirm) {
                     $.ajax({
                         url: deleteUrl,
                         data: {
@@ -222,30 +245,31 @@
                         },
                         type: "DELETE",
                         dataType: "JSON",
-                        success: function(response){
-                            daTable.draw();
-                            orFail = (response.status == 'success'?'bg-success':'bg-danger');
+                        success: function(response) {
+                            daTable.ajax.reload(null, false);
+                            orFail = (response.status == 'success' ? 'bg-success' : 'bg-danger');
                             gritter(response.status, response.message, orFail);
                         }
                     })
                 }
             });
         }
-        function gritter(title, text, status){
+
+        function gritter(title, text, status) {
             $.gritter.add({
                 title: title,
-                text: '<p class="text-light">'+text+'</p>',
+                text: '<p class="text-light">' + text + '</p>',
                 class_name: status,
                 time: 1000,
             });
         }
-        $(document).ready(function(){
+        $(document).ready(function() {
             $('.select2').select2({
                 dropdownParent: $('#userModal'),
                 placeholder: "Select Line",
                 allowClear: true
             });
-            $('.modal-body form').on('submit', function(e){
+            $('.modal-body form').on('submit', function(e) {
                 e.preventDefault();
                 let orFail = '';
                 var formData = new FormData($(this)[0]);
@@ -256,11 +280,11 @@
                     contentType: false,
                     processData: false,
                     dataType: "JSON",
-                    success: function(response){
+                    success: function(response) {
                         $('#userModal').modal('hide');
                         $('.modal-body form').find('input[name="_method"]').remove();
-                        orFail = (response.status == 'success'?'bg-success':'bg-danger');
-                        daTable.draw();
+                        orFail = (response.status == 'success' ? 'bg-success' : 'bg-danger');
+                        daTable.ajax.reload(null, false);
                         gritter(response.status, response.message, orFail);
                     }
                 })

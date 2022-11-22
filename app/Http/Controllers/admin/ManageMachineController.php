@@ -102,7 +102,9 @@ class ManageMachineController extends Controller
             'txtmachinename' => $request->input('txtmachinename'),
         ];
         if ($request->hasFile('txtpicture')) {
-            unlink('assets/img/machine/'. $machine->txtpicture);
+            if ($machine->txtpicture != 'default.png') {
+                unlink('assets/img/machine/' . $machine->txtpicture);
+            }
             $file = $request->file('txtpicture');
             $filename = date('YmdHis') . $file->getClientOriginalName();
             $request

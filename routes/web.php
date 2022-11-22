@@ -37,6 +37,8 @@ use App\Http\Controllers\leaderCg\ViewDowntimeController as leaderCgDowntime;
 use App\Http\Controllers\admin\ManageServerController;
 use App\Http\Controllers\admin\ManageTopicController;
 use App\Http\Controllers\admin\ViewTopicController;
+use App\Http\Controllers\Ppic\ManagePlanOrderController;
+use Illuminate\Database\Capsule\Manager;
 
 /*
 |--------------------------------------------------------------------------
@@ -180,10 +182,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('product', [ManageProductController::class, 'getIndex'])->name(
         'manage.product.index'
     );
-    Route::get('product/list', [
-        ManageProductController::class,
-        'getListProduct',
-    ])->name('manage.product.list');
     Route::post('product', [
         ManageProductController::class,
         'storeProduct',
@@ -423,4 +421,14 @@ Route::group(['prefix' => 'leader-cg'], function () {
     Route::post('oee-drier/list', [leaderCgOeeDrier::class, 'getOeeList'])->name('leader-cg.drier.oee.list');
     Route::post('oee-drier/store', [leaderCgOeeDrier::class, 'storeOee'])->name('leader-cg.drier.oee.store');
     Route::delete('oee-drier/destroy/{id}', [leaderCgOeeDrier::class, 'destroyOee'])->name('leader-cg.drier.oee.destroy');
+});
+
+//Prefix: PPIC
+Route::group(['prefix' => 'ppic'], function(){
+    Route::get('planorder', [ManagePlanOrderController::class, 'getPlanOrder'])->name('manage.planorder.index');
+    Route::post('planorder', [ManagePlanOrderController::class, 'storePlanOrder'])->name('manage.planorder.store');
+    Route::get('planorder/{id}', [ManagePlanOrderController::class, 'editPlanOrder'])->name('manage.planorder.edit');
+    Route::put('planorder/{id}', [ManagePlanOrderController::class, 'updatePlanOrder'])->name('manage.planorder.update');
+    Route::put('planorder/release/{id}', [ManagePlanOrderController::class, 'putReleasePlanOrder'])->name('manage.planorder.release');
+    Route::delete('planorder/{id}', [ManagePlanOrderController::class, 'destroyPlanOrder'])->name('manage.planorder.destroy');
 });

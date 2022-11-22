@@ -114,22 +114,26 @@ class ManageServerController extends Controller
     public function activateServer($param)
     {
         if ($param == 'stop') {
-            exec('TASKKILL /FI "WindowTitle eq Subscribe"');
+            $command = 'taskkill /FI "WindowTitle eq Subscribe"';
+            exec($command, $output);
             return response()->json(
                 [
                     'status' => 'success',
                     'message' => 'Server Stopped successfully',
+                    'output' => $output,
                 ],
                 200
             );
         } else {
             chdir('../../mqtt_php');
-            exec('start sub.bat', $output);
+            // $command = 'sudo /bin/systemctl start phpmqtt.service';
+            $command = 'start sub.bat';
+            exec($command, $output);
             return response()->json(
                 [
                     'status' => 'success',
                     'message' => 'Server activated successfully',
-                    'output' => $output
+                    'output' => $output,
                 ],
                 200
             );
@@ -137,7 +141,8 @@ class ManageServerController extends Controller
     }
     public function checkServerStatus()
     {
-        $command = 'TASKLIST /FI "WindowTitle eq Subscribe"';
+        // $command = 'systemctl status phpmqtt';
+        $command = 'tasklist /FI "WindowTitle eq Subscribe"';
         $status = exec($command, $output, $return_var);
         return response()->json(
             [

@@ -126,7 +126,6 @@
                 {"className": "dt-center", "targets": [0, 2, 3, 4, 5, 6]},
             ]
         });
-        let okp = @json($okp);
         let bascom = [
             'Fastener', 'Lubrication', 'Pneumatic', 'Hydralic', 'Drive', 'Electric', 'Safety', 'Process Condition'
         ];
@@ -222,7 +221,6 @@
                 },
                 {
                     data: 'okp_packing',
-                    source: okp,
                     type: 'autocomplete',
                     strict: false
                 },
@@ -283,7 +281,7 @@
                                         descActivity(change[0][0], change[0][3]);
                                     }
                                     if (change[0][1] == 'okp_packing') {
-                                        okpDetail(change[0][0], change[0][3]);
+                                        // okpDetail(change[0][0], change[0][3]);
                                     }
                                 }
                             },

@@ -272,7 +272,7 @@
                 type: "GET",
                 dataType: "JSON",
                 success: function(response) {
-                    // console.log(response);
+                    console.log(response);
                     if (response.message.replace(/\D/g, '') > 0) {
                         $('.btn-toggle').find('.btn-success').addClass('disabled');
                     } else {
@@ -289,13 +289,14 @@
                     type: "GET",
                     dataType: "JSON",
                     success: function(response) {
+                        console.log(response);
                         $('.btn-toggle').find('.btn-danger').addClass('disabled');
                         $('.btn-toggle').find('.btn-success').removeClass('disabled');
                         gritter('Success', response.message, 'bg-success');
                     }
                 })
             } else {
-                setTimeout(function(){
+                setTimeout(function() {
                     location.reload();
                 }, 3000);
                 $.ajax({
@@ -303,6 +304,7 @@
                     type: "GET",
                     dataType: "JSON",
                     success: function(response) {
+                        console.log(response);
                         $('.btn-toggle').find('.btn-success').addClass('disabled');
                         $('.btn-toggle').find('.btn-danger').removeClass('disabled');
                         gritter('Success', response.message, 'bg-success');

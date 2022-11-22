@@ -22,4 +22,15 @@ class ProductModel extends Model
         'txtcategory',
         'txtfocuscategory',
     ];
+    // protected $fillable = [
+    //     'line_id',
+    //     'txtpartnumber',
+    //     'txtpartcode',
+    //     'txtpartname',
+    //     'txtlinecode',
+    //     'floatstdspeed',
+    //     'intpcskanban',
+    //     'txtpartimage',
+    //     'route_id',
+    // ];
 }

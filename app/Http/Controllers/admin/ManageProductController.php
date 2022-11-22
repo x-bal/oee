@@ -11,41 +11,41 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageProductController extends Controller
 {
-    public function getIndex(Line $line)
+    public function getIndex(Line $line, Request $request)
     {
-        return view('pages.admin.product', [
-            'lines' => $line->all(),
-        ]);
-    }
-    public function getListProduct()
-    {
-        $data = Product::select('mproduct.*', 'mline.txtlinename')
-            ->join('mline', 'mline.id', '=', 'mproduct.line_id')
-            ->get();
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btn_edit =
-                    '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
-                    $row->id .
-                    ')"><i class="fas fa-edit"></i></a>';
-                $btn_delete =
-                    '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
-                    $row->id .
-                    ')"><i class="fas fa-trash"></i></a>';
-                $btn = $btn_edit . ' ' . $btn_delete;
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+        if ($request->wantsJson()) {
+            $data = Product::select('mproduct.*', 'mline.txtlinename')
+                ->join('mline', 'mline.id', '=', 'mproduct.line_id')
+                ->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn_edit =
+                        '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
+                        $row->id .
+                        ')"><i class="fas fa-edit"></i></a>';
+                    $btn_delete =
+                        '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
+                        $row->id .
+                        ')"><i class="fas fa-trash"></i></a>';
+                    $btn = $btn_edit . ' ' . $btn_delete;
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        } else {
+            return view('pages.admin.product', [
+                'lines' => $line->all(),
+            ]);
+        }
     }
     public function storeProduct(Request $request)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
             'line_id' => 'required',
-            'txtartcode' => 'required|unique:mproduct,txtartcode',
-            'txtproductname' => 'required',
+            'txtpartnumber' => 'required|unique:mproduct,txtartcode',
+            'txtpartname' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -54,7 +54,23 @@ class ManageProductController extends Controller
                 'status' => 'error',
             ]);
         } else {
-            $product = Product::create($request->all());
+            $input = [
+                'line_id' => $request->line_id,
+                'txtartcode' => $request->txtpartnumber,
+                'txtproductname' => $request->txtpartname,
+                'txtproductcode' => $request->txtpartcode,
+                'floatstdspeed' => $request->floatstdspeed,
+                'intpcskarton' => $request->intpcskanban
+            ];
+            if ($request->hasFile('txtpartimage')) {
+                $file = $request->file('txtpartimage');
+                $filename = str_replace(' ','_', date('YmdHis') . $file->getClientOriginalName());
+                $request
+                    ->file('txtpartimage')
+                    ->move(public_path('assets/img/part/'), $filename);
+                $input['txtpartimage'] = $filename;
+            }
+            $product = Product::create($input);
             if ($product) {
                 return response()->json(
                     [
@@ -97,15 +113,30 @@ class ManageProductController extends Controller
     }
     public function updateProduct($id, Request $request)
     {
-        $input = $request->all();
+        $input = [
+            'line_id' => $request->line_id,
+            'txtartcode' => $request->txtpartnumber,
+            'txtproductname' => $request->txtpartname,
+            'txtproductcode' => $request->txtpartcode,
+            'floatstdspeed' => $request->floatstdspeed,
+            'intpcskarton' => $request->intpcskanban
+        ];
         $product = Product::findOrfail($id);
         $validator = Validator::make($input, [
             'line_id' => 'required',
-            'txtartcode' =>
-                'required|unique:mproduct,txtartcode,' . $id,
-            'txtproductname' => 'required',
+            'txtpartnumber' => 'required|unique:mproduct,txtartcode,' . $id,
+            'txtpartname' => 'required',
         ]);
-        if ($product) {
+        if ($validator) {
+            if ($request->hasFile('txtpartimage')) {
+                unlink('assets/img/part/'. $product->txtpartimage);
+                $file = $request->file('txtpartimage');
+                $filename = str_replace(' ','_', date('YmdHis') . $file->getClientOriginalName());
+                $request
+                    ->file('txtpartimage')
+                    ->move(public_path('assets/img/part/'), $filename);
+                $input['txtpartimage'] = $filename;
+            }
             $update = $product->update($input);
             if ($update) {
                 return response()->json(

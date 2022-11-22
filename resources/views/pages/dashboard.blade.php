@@ -139,7 +139,7 @@
                 <div class="widget-chart-content">
                     <h4 class="chart-title text-dark">
                         POE Analytics
-                        <small>PT Kalbe Morinaga Indonesia</small>
+                        <small>PT Dharma Polimetal</small>
                     </h4>
                     <canvas id="poe-chart" class="widget-chart-full-width" style="height: 260px;"></canvas>
                 </div>

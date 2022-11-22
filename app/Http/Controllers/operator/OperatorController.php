@@ -86,17 +86,17 @@ class OperatorController extends Controller
         // print(substr($month, 0, 4));
         $line = Line::findOrfail(session()->get('line'));
         $leader = User::findOrfail(session()->get('leader'));
-        $pending = Http::withBasicAuth('admin', '@0332022')->get(
-            'http://10.175.11.67/api-kmi/api/oee/line',
-            [
-                'BATCH_TYPE' => $line->txtlinename,
-                'decode_content' => false,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-        $datapending = json_decode($pending->getBody()->getContents(), true);
+        // $pending = Http::withBasicAuth('admin', '@0332022')->get(
+        //     'http://10.175.11.67/api-kmi/api/oee/line',
+        //     [
+        //         'BATCH_TYPE' => $line->txtlinename,
+        //         'decode_content' => false,
+        //         'headers' => [
+        //             'Content-Type' => 'application/json',
+        //         ],
+        //     ]
+        // );
+        // $datapending = json_decode($pending->getBody()->getContents(), true);
         $code = Activity::where('line_id', session()->get('line'))->pluck(
             'txtactivitycode'
         );
@@ -106,7 +106,7 @@ class OperatorController extends Controller
         return view('pages.operator.date', [
             'dates' => $loop,
             'code' => $code,
-            'okp' => collect($datapending['data'])->pluck('BATCH_NO'),
+            // 'okp' => collect($datapending['data'])->pluck('BATCH_NO'),
             'line' => $line,
             'leader' => $leader,
             'columns' => $this->columns,
