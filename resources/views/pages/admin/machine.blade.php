@@ -92,8 +92,12 @@
                             <input class="form-control" type="file" id="formFile" name="txtpicture"
                                 onchange="preview()">
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="BottleNeck" name="intbottleneck" value="1"/>
+                            <label class="form-check-label" for="BottleNeck">Line Bottleneck?</label>
+                        </div>
                         <div class="mb-3">
-                            <img id="previewImg" src="/assets/img/machine/default.png" alt="Preview Machine"
+                            <img id="previewImg" src="{{ asset('/assets/img/machine/default.png') }}" alt="Preview Machine"
                                 class="img-thumbnail mx-auto d-block" style="width: 50%">
                         </div>
                 </div>
@@ -206,6 +210,7 @@
                 dataType: "JSON",
                 success: function(response) {
                     $('input[name="txtmachinename"]').val(response.machine.txtmachinename);
+                    $('#BottleNeck[value="'+response.machine.intbottleneck+'"]').prop('checked', true);
                     $('select[name="line_id"]').val(response.machine.line_id).trigger('change');
                     $('#previewImg').attr('src', '/assets/img/machine/' + response.machine.txtpicture);
                 }

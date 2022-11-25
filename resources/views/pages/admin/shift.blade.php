@@ -78,6 +78,10 @@
                     <label for="Finish">Finish* :</label>
                     <input type="time" id="Finish" name="tmfinish" class="form-control" placeholder="Shift Finish" data-parsley-required="true">
                 </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="Interval" name="intinterval" value="1"/>
+                    <label class="form-check-label" for="Interval">Finish tomorrow?</label>
+                </div>
             </div>
             <div class="modal-footer">
                 <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
@@ -104,7 +108,7 @@
         let action = '';
         let method = '';
         var daTable = $('#daTable').DataTable({
-            ajax: "{{ route('manage.shift.list') }}",
+            ajax: "{{ route('manage.shift.index') }}",
 			processing: true,
         	serverSide: true,
             columns: [
@@ -150,6 +154,7 @@
                     $('input[name="txtshiftname"]').val(response.shift.txtshiftname);
                     $('input[name="tmstart"]').val(response.shift.tmstart);
                     $('input[name="tmfinish"]').val(response.shift.tmfinish);
+                    $('#Interval[value="'+response.shift.intinterval+'"]').prop('checked', true);
                 }
             })
         }

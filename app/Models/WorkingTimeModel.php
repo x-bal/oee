@@ -9,5 +9,10 @@ class WorkingTimeModel extends Model
 {
     use HasFactory;
     protected $table = 'mworkingtime';
-    protected $fillable = ['txtshiftname', 'tmstart', 'tmfinish'];
+    protected $fillable = [
+        'txtshiftname',
+        'tmstart',
+        'tmfinish',
+        'intinterval',
+    ];
 }

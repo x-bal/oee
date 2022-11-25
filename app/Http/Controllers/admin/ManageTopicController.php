@@ -48,7 +48,10 @@ class ManageTopicController extends Controller
             $brokers = Server::all();
             return view('pages.admin.topic', [
                 'brokers' => $brokers,
-                'machines' => Machine::all(),
+                'machines' => Machine::select('mmachines.id', 'mmachines.txtmachinename', 'mline.txtlinename')
+                    ->join('mline', 'mline.id','=','mmachines.line_id')
+                    ->where('intbottleneck', 1)
+                    ->get(),
             ]);
         }
     }

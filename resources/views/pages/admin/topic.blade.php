@@ -79,7 +79,7 @@
                                     data-parsley-required="true">
                                     <option value=""></option>
                                     @foreach ($machines as $item)
-                                        <option value="{{ $item->id }}">{{ $item->txtmachinename }}</option>
+                                        <option value="{{ $item->id }}">{{ $item->txtlinename.' - '.$item->txtmachinename }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -159,7 +159,6 @@
                     name: 'topics',
                     render: function(data) {
                         let topic = JSON.parse(data);
-                        console.log(topic);
                         let list = '';
                         $.each(topic, function(i, val) {
                             list += '<li class="list-group-item">' + topic[i].txtname + ' - ' + topic[i].txttopic + '</li>';
@@ -189,8 +188,7 @@
             let wrapper = $('.entry');
             let field = '<tr>' +
                 '<td>' + index + '</td>' +
-                '<td><input type="text" id="TopicName' + index +
-                '" name="txtname[]" class="form-control" placeholder="TOPIC NAME" data-parsley-required="true"/></td>' +
+                '<td>'+selectTopicName(index)+'</td>' +
                 '<td><input type="text" id="Topic' + index +
                 '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true"/></td>' +
                 '<td>Unavailable</td>' +
@@ -203,8 +201,7 @@
             let wrapper = $('.entry');
             let field = '<tr>' +
                 '<td>' + index + '</td>' +
-                '<td><input type="text" id="TopicName' + index +
-                '" name="txtname[]" class="form-control" placeholder="TOPIC NAME" data-parsley-required="true"/></td>' +
+                '<td>'+selectTopicName(index)+'</td>' +
                 '<td><input type="text" id="Topic' + index +
                 '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true"/></td>' +
                 '<td><button type="button" class="btn btn-sm btn-danger btn-delete">Delete</button></td>' +
@@ -219,9 +216,7 @@
                 index = (i + 1);
                 entry += '<tr>' +
                     '<td>' + (i + 1) + '</td>' +
-                    '<td><input type="text" id="TopicName' + (i + 1) +
-                    '" name="txtname[]" class="form-control" placeholder="TOPIC NAME" data-parsley-required="true" value="' +
-                    data[i].txtname + '"/></td>' +
+                    '<td>'+selectTopicName((i+1), data[i].txtname)+'</td>' +
                     '<td><input type="text" id="Topic' + (i + 1) +
                     '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true" value="' +
                     data[i].txttopic + '"/></td>' +
@@ -238,7 +233,23 @@
             let wrapper = $('.entry');
             wrapper.find('tr').remove();
         }
-
+        function selectTopicName(id, selected = false){
+            let select = '';
+            if (selected) {
+                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true">'+
+                        '<option value="COUNTING" '+((selected == 'COUNTING')?'selected':'')+'>COUNTING</option>'+
+                        '<option value="REJECTOR" '+((selected == 'REJECTOR')?'selected':'')+'>REJECTOR</option>'+
+                        '<option value="STATUS" '+((selected == 'STATUS')?'selected':'')+'>START/STOP</option>'+
+                    '</select>';
+            } else {
+                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true">'+
+                        '<option value="COUNTING">COUNTING</option>'+
+                        '<option value="REJECTOR">REJECTOR</option>'+
+                        '<option value="STATUS">START/STOP</option>'+
+                    '</select>';
+            }
+            return select;
+        }
         function create() {
             $('#userModal').modal('show');
             $('.modal-body form')[0].reset();

@@ -203,9 +203,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('shift', [ManageShiftController::class, 'getIndex'])->name(
         'manage.shift.index'
     );
-    Route::get('shift/list', [ManageShiftController::class, 'getListShift'])->name(
-        'manage.shift.list'
-    );
     Route::post('shift', [ManageShiftController::class, 'storeShift'])->name(
         'manage.shift.store'
     );

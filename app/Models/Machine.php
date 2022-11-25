@@ -9,7 +9,12 @@ class Machine extends Model
 {
     use HasFactory;
     protected $table = 'mmachines';
-    protected $fillable = ['line_id', 'txtmachinename', 'txtpicture'];
+    protected $fillable = [
+        'line_id',
+        'txtmachinename',
+        'txtpicture',
+        'intbottleneck',
+    ];
     public static $rules = [
         'line_id' => 'required',
         'txtmachinename' => 'required',

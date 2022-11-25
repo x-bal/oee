@@ -48,11 +48,14 @@ class ManageMachineController extends Controller
         ];
         if ($request->hasFile('txtpicture')) {
             $file = $request->file('txtpicture');
-            $filename = date('YmdHis') . $file->getClientOriginalName();
+            $filename = str_replace(' ','_', date('YmdHis') . $file->getClientOriginalName());
             $request
                 ->file('txtpicture')
                 ->move(public_path('assets/img/machine/'), $filename);
             $input['txtpicture'] = $filename;
+        }
+        if ($request->has('intbottleneck')) {
+            $input['intbottleneck'] = 1;
         }
         $store = Machine::create($input);
         if ($store) {
@@ -106,11 +109,14 @@ class ManageMachineController extends Controller
                 unlink('assets/img/machine/' . $machine->txtpicture);
             }
             $file = $request->file('txtpicture');
-            $filename = date('YmdHis') . $file->getClientOriginalName();
+            $filename = str_replace(' ','_', date('YmdHis') . $file->getClientOriginalName());
             $request
                 ->file('txtpicture')
                 ->move(public_path('assets/img/machine/'), $filename);
             $input['txtpicture'] = $filename;
+        }
+        if ($request->has('intbottleneck')) {
+            $input['intbottleneck'] = 1;
         }
         if ($machine) {
             $machine->update($input);
@@ -135,6 +141,9 @@ class ManageMachineController extends Controller
     {
         $machine = Machine::findOrfail($id);
         if ($machine) {
+            if ($machine->txtpicture != 'default.png') {
+                unlink('assets/img/machine/' . $machine->txtpicture);
+            }
             $machine->delete();
             return response()->json(
                 [
