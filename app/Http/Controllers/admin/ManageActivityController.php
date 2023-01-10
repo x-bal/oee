@@ -14,6 +14,7 @@ class ManageActivityController extends Controller
     {
         $line = $lines->all();
         $kategori = [
+            'pr' => 'Produksi Lancar',
             'sh' => 'Shut Down',
             'br' => 'Break Down/Failure',
             'se' => 'Set Up and Adjustment',

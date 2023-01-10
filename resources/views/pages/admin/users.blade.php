@@ -42,11 +42,12 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Initial</th>
-                            <th>Level</th>
-                            <th>Aksi</th>
+                            <th>NAMA</th>
+                            <th>USERNAME</th>
+                            <th>INITIAL</th>
+                            <th>QR</th>
+                            <th>LEVEL</th>
+                            <th>AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,7 +71,7 @@
                 @csrf
                 <div class="mb-3">
                     <label for="Nama">Nama* :</label>
-                    <input type="text" id="Nama" name="txtname" class="form-control" placeholder="Enter Name" data-parsley-required="true"/>
+                    <input type="text" id="Nama" name="txtname" class="form-control" placeholder="Enter Name" data-parsley-required="true" oninput="this.value = this.value.toUpperCase()"/>
                 </div>
                 <div class="mb-3">
                     <label for="Username">Username* :</label>
@@ -78,7 +79,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="Initial">Initial* :</label>
-                    <input type="text" id="Initial" name="txtinitial" class="form-control" placeholder="Enter Initial" data-parsley-maxlength="4" data-parsley-required="true"/>
+                    <input type="text" id="Initial" name="txtinitial" class="form-control" placeholder="Enter Initial" data-parsley-maxlength="4" data-parsley-required="true" oninput="this.value = this.value.toUpperCase()"/>
                 </div>
                 <div class="mb-3 password">
                     <label for="Password">Password* :</label>
@@ -154,7 +155,7 @@
         let action = '';
         let method = '';
         var daTable = $('#daTable').DataTable({
-            ajax: "{{ route('manage.user.list') }}",
+            ajax: "{{ route('manage.user.index') }}",
 			processing: true,
         	serverSide: true,
             columns: [
@@ -162,6 +163,7 @@
                 {data: 'txtname'},
                 {data: 'txtusername'},
                 {data: 'txtinitial'},
+                {data: 'txtqrcode'},
                 {data: 'txtlevelname'},
                 {data: 'action'}
             ]
@@ -306,6 +308,15 @@
                         orFail = (response.status == 'success'?'bg-success':'bg-danger');
                         daTable.ajax.reload(null, false);
                         gritter(response.status, response.message, orFail);
+                    },
+                    error: function(response){
+                        console.log(response.responseJSON.fields);
+                        let fields = response.responseJSON.fields;
+                        $.each(fields, function(i, val){
+                            for (let index = 0; index < val.length; index++) {
+                                gritter('error', val[index], 'bg-danger');
+                            }
+                        })
                     }
                 })
             })

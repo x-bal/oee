@@ -4,27 +4,21 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\LineProcess as Line;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class ManageUserController extends Controller
 {
-    public function getIndex()
+    public function getIndex(Request $request)
     {
-        $level = DB::table('mlevels')->get();
-        return view('pages.admin.users', [
-            'level' => $level,
-            'lines' => Line::all(),
-        ]);
-    }
-    public function getListUsers(User $user)
-    {
-        $users = $user
-            ->join('mlevels', 'mlevels.id', '=', 'musers.level_id')
+        if ($request->wantsJson()) {
+            $users = User::join('mlevels', 'mlevels.id', '=', 'musers.level_id')
             ->get(['musers.*', 'mlevels.txtlevelname']);
         return DataTables::of($users)
             ->addIndexColumn()
@@ -44,8 +38,28 @@ class ManageUserController extends Controller
                 $btn = $btn_pass . ' ' . $btn_edit . ' ' . $btn_delete;
                 return $btn;
             })
+            ->editColumn('txtqrcode', function($row)
+            {
+                return QrCode::generate($row->txtusername.'|'.$row->txtqrcode);
+            })
             ->rawColumns(['action'])
             ->make(true);
+        } else {
+            $level = DB::table('mlevels')->get();
+            return view('pages.admin.users', [
+                'level' => $level,
+                'lines' => Line::all(),
+            ]);
+        }
+    }
+    public function uniqueQr()
+    {
+        $qr = Str::random(64);
+        if (User::where('txtqrcode', $qr)->first()) {
+            $this->uniqueQr();
+        } else {
+            return $qr;
+        }
     }
     public function storeUser(Request $request)
     {
@@ -55,33 +69,42 @@ class ManageUserController extends Controller
             'txtinitial' => $request->input('txtinitial'),
             'password' => Hash::make($request->input('txtpassword')),
             'level_id' => $request->input('level_id'),
+            'txtqrcode' => $this->uniqueQr()
         ];
-        $user = User::create($input);
-        if (!empty($request->input('line_id'))) {
-            $input['line_id'] = $request->input('line_id');
-            foreach ($input['line_id'] as $key => $value) {
-                DB::table('line_users')->insert([
-                    'user_id' => $user->id,
-                    'line_id' => $value
-                ]);
-            }
-        }
-        if ($user) {
-            return response()->json(
-                [
-                    'status' => 'success',
-                    'message' => 'User created Succesfully',
-                ],
-                200
-            );
+        $validator = Validator::make($input, User::rules());
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'fields' => $validator->errors()
+            ], 400);
         } else {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'message' => 'User created Failed',
-                ],
-                401
-            );
+            $user = User::create($input);
+            if (!empty($request->input('line_id'))) {
+                $input['line_id'] = $request->input('line_id');
+                foreach ($input['line_id'] as $key => $value) {
+                    DB::table('line_users')->insert([
+                        'user_id' => $user->id,
+                        'line_id' => $value
+                    ]);
+                }
+            }
+            if ($user) {
+                return response()->json(
+                    [
+                        'status' => 'success',
+                        'message' => 'User created Succesfully',
+                    ],
+                    200
+                );
+            } else {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'User created Failed',
+                    ],
+                    401
+                );
+            }
         }
     }
     public function editUser($id)
@@ -117,24 +140,32 @@ class ManageUserController extends Controller
             'level_id' => $request->input('level_id'),
         ];
         if ($user) {
-            $user->update($input);
-            if (!empty($request->input('line_id'))) {
-                DB::table('line_users')->where('user_id', $id)->delete();
-                $input['line_id'] = $request->input('line_id');
-                foreach ($input['line_id'] as $key => $value) {
-                    DB::table('line_users')->insert([
-                        'user_id' => $id,
-                        'line_id' => $value
-                    ]);
+            $validator = Validator::make($input, User::rules($id));
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'fields' => $validator->errors()
+                ], 400);
+            } else {
+                $user->update($input);
+                if (!empty($request->input('line_id'))) {
+                    DB::table('line_users')->where('user_id', $id)->delete();
+                    $input['line_id'] = $request->input('line_id');
+                    foreach ($input['line_id'] as $key => $value) {
+                        DB::table('line_users')->insert([
+                            'user_id' => $id,
+                            'line_id' => $value
+                        ]);
+                    }
                 }
+                return response()->json(
+                    [
+                        'status' => 'success',
+                        'message' => 'Data Updated Successfully',
+                    ],
+                    200
+                );
             }
-            return response()->json(
-                [
-                    'status' => 'success',
-                    'message' => 'Data Updated Successfully',
-                ],
-                200
-            );
         } else {
             return response()->json(
                 [

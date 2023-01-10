@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UserController extends Controller
 {
@@ -105,5 +107,27 @@ class UserController extends Controller
                 }
             }
         }
+    }
+    public function uniqueQr()
+    {
+        $qr = Str::random(64);
+        if (User::where('txtqrcode', $qr)->first()) {
+            $this->uniqueQr();
+        } else {
+            return $qr;
+        }
+    }
+    public function getMyQr()
+    {
+        $qr = QrCode::size(250)->generate(Auth::user()->txtusername.'|'.Auth::user()->txtqrcode);
+        return view('pages.my-qr', [
+            'qr' => $qr
+        ]);
+    }
+    public function getChangeQr()
+    {
+        $user = User::find(Auth::user()->id);
+        $user->update(['txtqrcode' => $this->uniqueQr()]);
+        return redirect()->route('view.qr.index')->with('success', 'QR changed Successfully !');
     }
 }

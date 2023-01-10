@@ -7,7 +7,7 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
     <meta content="" name="description" />
     <meta content="" name="author" />
-    <link rel="icon" type="image/x-icon" href="{{ asset('kalbe.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('dharma.ico') }}">
 
     <!-- ================== BEGIN core-css ================== -->
     <link href="{{ asset('assets/css/vendor.min.css') }}" rel="stylesheet" />
@@ -175,9 +175,9 @@
             text-decoration: underline;
         }
 
-        .modal-content .modal-body .btn {
+        .modal-content .modal-body .btn-submit {
             color: #fff;
-            background: linear-gradient(to right, #eee, #009900, #03b703);
+            background: linear-gradient(to right, rgb(10, 100, 255), #009900, #03b703);
             font-size: 16px;
             font-weight: 500;
             letter-spacing: 1px;
@@ -193,13 +193,13 @@
             transition: all 0.6s ease 0s;
         }
 
-        .modal-content .modal-body .btn:hover {
+        .modal-content .modal-body .btn-submit:hover {
             color: #fff;
             letter-spacing: 2px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
-        .modal-content .modal-body .btn:focus {
+        .modal-content .modal-body .btn-submit:focus {
             outline: none;
         }
 

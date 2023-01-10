@@ -94,7 +94,7 @@
         let action = '';
         let method = '';
         var daTable = $('#daTable').DataTable({
-            ajax: "{{ route('manage.line.list') }}",
+            ajax: "{{ route('manage.line.index') }}",
 			processing: true,
         	serverSide: true,
             columns: [

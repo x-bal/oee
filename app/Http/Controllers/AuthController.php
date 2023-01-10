@@ -116,34 +116,6 @@ class AuthController extends Controller
             200
         );
     }
-    public function getData()
-    {
-        $collection = new Collection();
-        $response = Http::withBasicAuth('admin', '@0332022')->get(
-            'http://10.175.11.67/api-kmi/api/oee',
-            [
-                'decode_content' => false,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-        $oee_data = json_decode($response->getBody()->getContents(), true);
-        $finish = Http::withBasicAuth('admin', '@0332022')->get(
-            'http://10.175.11.67/api-kmi/api/oee/indexfinish',
-            [
-                'decode_content' => false,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-        $oee_finish = json_decode($finish->getBody()->getContents(), true);
-        $collection->push($oee_data['data']);
-        $collection->push($oee_finish['data']);
-        echo '<pre>', var_dump($collection), '</pre>';
-        die();
-    }
     //Function Login
     public function postLogin(Request $request)
     {

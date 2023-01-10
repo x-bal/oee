@@ -11,8 +11,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageDailyController extends Controller
 {
-    public function getIndex()
-    {
-        
+    public function getIndex(Request $request){
+        if ($request->wantsJson()) {
+            # code...
+        } else {
+            return view('pages.admin.daily-activities');
+        }
     }
 }

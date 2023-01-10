@@ -17,8 +17,10 @@
 		</button>
 		@endif
 		<a href="/" class="navbar-brand">
-        <img src="/assets/img/logo/kalbe.png" width="30" height="30" class="d-inline-block align-top" alt="">
-        <span class="navbar-logo"></span> <strong>KALBE </strong> <span style="color: #39e600;margin-left:5px;">Nutritionals</span></a>
+            <img src="{{ asset('assets/img/logo/dharma.png') }}" width="30" height="30"
+            class="d-inline-block align-top" alt="">
+            <span class="navbar-logo"></span> <strong>Dharma </strong> <span
+            style="color: #39e600;margin-left:5px;">Polimetal</span></a></a>
 		@if ($appHeaderMegaMenu && !$appSidebarTwo)
 		<button type="button" class="navbar-mobile-toggler" data-bs-toggle="collapse" data-bs-target="#top-navbar">
 			<span class="fa-stack fa-lg">

@@ -19,7 +19,9 @@ use App\Http\Controllers\admin\ManagePlanningController;
 use App\Http\Controllers\admin\ViewOeeController;
 use App\Http\Controllers\admin\AchievementPoeController;
 use App\Http\Controllers\admin\AchievementOeeController;
+use App\Http\Controllers\admin\AssignOperatorController;
 use App\Http\Controllers\admin\ManageLevelController;
+use App\Http\Controllers\admin\ManageDailyController;
 use App\Http\Controllers\leader\LeaderController;
 use App\Http\Controllers\leader\LeaderDrierController;
 use App\Http\Controllers\leader\ViewDowntimeController as LeaderViewDowntime;
@@ -38,7 +40,8 @@ use App\Http\Controllers\admin\ManageServerController;
 use App\Http\Controllers\admin\ManageTopicController;
 use App\Http\Controllers\admin\ViewTopicController;
 use App\Http\Controllers\Ppic\ManagePlanOrderController;
-use Illuminate\Database\Capsule\Manager;
+use App\Http\Controllers\QrLoginController;
+use App\Http\Controllers\Opr\OprController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,170 +54,81 @@ use Illuminate\Database\Capsule\Manager;
 |
 */
 
+//Not Auth User
 Route::get('/', [AuthController::class, 'getIndex'])->name('auth.login');
-Route::get('/line/{line_id}', [ViewLine::class, 'getIndex'])->name(
-    'auth.line.view'
-);
+Route::get('/line/{line_id}', [ViewLine::class, 'getIndex'])->name('auth.line.view');
 Route::post('/chart-poe', [AuthController::class, 'getChartPOE'])->name('chart.poe');
 Route::post('/chart-ur', [AuthController::class, 'getChartUR'])->name('chart.urate');
-Route::post('/login', [AuthController::class, 'postLogin'])->name(
-    'auth.post.login'
-);
-Route::get('/login/data', [AuthController::class, 'getData'])->name(
-    'auth.get.api'
-);
-Route::get('/logout', [AuthController::class, 'getLogout'])->name(
-    'auth.logout'
-);
+Route::post('/login', [AuthController::class, 'postLogin'])->name('auth.post.login');
 
-Route::get('dashboard', [DashboardController::class, 'getIndex'])->name(
-    'dashboard.index'
-);
-Route::get('dashboard/line/{line_id}', [ViewLine::class, 'getIndex'])->name(
-    'dashboard.line.view'
-);
+//Qr Login
+Route::group(['prefix' => 'qr'], function () {
+    Route::get('/login', [QrLoginController::class, 'getIndex'])->name('auth.qr.index');
+    Route::post('/login', [QrLoginController::class, 'postLogin'])->name('auth.qr.login');
+});
+
+//Logout
+Route::get('/logout', [AuthController::class, 'getLogout'])->name('auth.logout');
+
+Route::get('dashboard', [DashboardController::class, 'getIndex'])->name('dashboard.index');
+Route::get('dashboard/line/{line_id}', [ViewLine::class, 'getIndex'])->name('dashboard.line.view');
 Route::post('/postline', [DashboardController::class, 'setLineOrLeader'])->name('dashboard.post.line');
+
 //Profile User
 Route::get('/profile',[UserController::class, 'getProfile'])->name('user.profile');
 Route::put('/profile/update-profile/{id}',[UserController::class, 'updateProfile'])->name('user.update.profile');
 Route::put('/profile/update-password/{id}',[UserController::class, 'updatePassword'])->name('user.update.password');
-Route::group(['prefix' => 'admin'], function () {
 
+//My Qr
+Route::get('/viewqr', [UserController::class, 'getMyQr'])->name('view.qr.index');
+Route::get('/viewqr/change', [UserController::class, 'getChangeQr'])->name('view.qr.change');
+
+//Prefix: Admin
+Route::group(['prefix' => 'admin'], function () {
     //Manage Users
-    Route::get('users', [ManageUserController::class, 'getIndex'])->name(
-        'manage.user.index'
-    );
-    Route::get('users/list', [
-        ManageUserController::class,
-        'getListUsers',
-    ])->name('manage.user.list');
-    Route::post('users', [ManageUserController::class, 'storeUser'])->name(
-        'manage.user.store'
-    );
-    Route::get('users/{id}', [ManageUserController::class, 'editUser'])->name(
-        'manage.user.edit'
-    );
-    Route::put('users/{id}', [ManageUserController::class, 'updateUser'])->name(
-        'manage.user.update'
-    );
-    Route::put('users/password/{id}', [
-        ManageUserController::class,
-        'updatePassword',
-    ])->name('manage.password.update');
-    Route::delete('users/{id}', [
-        ManageUserController::class,
-        'destroyUser',
-    ])->name('manage.user.destroy');
+    Route::get('users', [ManageUserController::class, 'getIndex'])->name('manage.user.index');
+    Route::post('users', [ManageUserController::class, 'storeUser'])->name('manage.user.store');
+    Route::get('users/{id}', [ManageUserController::class, 'editUser'])->name('manage.user.edit');
+    Route::put('users/{id}', [ManageUserController::class, 'updateUser'])->name('manage.user.update');
+    Route::put('users/password/{id}', [ManageUserController::class,'updatePassword',])->name('manage.password.update');
+    Route::delete('users/{id}', [ManageUserController::class,'destroyUser',])->name('manage.user.destroy');
 
     //Manage Line Process
-    Route::get('line', [ManageLineController::class, 'getIndex'])->name(
-        'manage.line.index'
-    );
-    Route::get('line/list', [
-        ManageLineController::class,
-        'getListLines',
-    ])->name('manage.line.list');
-    Route::post('line', [ManageLineController::class, 'storeLine'])->name(
-        'manage.line.store'
-    );
-    Route::get('line/{id}', [ManageLineController::class, 'editLine'])->name(
-        'manage.line.edit'
-    );
-    Route::put('line/{id}', [ManageLineController::class, 'updateLine'])->name(
-        'manage.line.update'
-    );
-    Route::delete('line/{id}', [
-        ManageLineController::class,
-        'destroyLine',
-    ])->name('manage.line.destroy');
+    Route::get('line', [ManageLineController::class, 'getIndex'])->name('manage.line.index');
+    Route::post('line', [ManageLineController::class, 'storeLine'])->name('manage.line.store');
+    Route::get('line/{id}', [ManageLineController::class, 'editLine'])->name('manage.line.edit');
+    Route::put('line/{id}', [ManageLineController::class, 'updateLine'])->name('manage.line.update');
+    Route::delete('line/{id}', [ManageLineController::class,'destroyLine'])->name('manage.line.destroy');
 
     //Manage Machines
-    Route::get('machines', [ManageMachineController::class, 'getIndex'])->name(
-        'manage.machine.index'
-    );
-    Route::get('machines/list', [
-        ManageMachineController::class,
-        'getListMachines',
-    ])->name('manage.machine.list');
-    Route::post('machines', [
-        ManageMachineController::class,
-        'storeMachine',
-    ])->name('manage.machine.store');
-    Route::get('machines/{id}', [
-        ManageMachineController::class,
-        'editMachine',
-    ])->name('manage.machine.edit');
-    Route::put('machines/{id}', [
-        ManageMachineController::class,
-        'updateMachine',
-    ])->name('manage.machine.update');
-    Route::delete('machines/{id}', [
-        ManageMachineController::class,
-        'destroyMachine',
-    ])->name('manage.machine.destroy');
+    Route::get('machines', [ManageMachineController::class, 'getIndex'])->name('manage.machine.index');
+    Route::get('machines/list', [ManageMachineController::class, 'getListMachines'])->name('manage.machine.list');
+    Route::post('machines', [ManageMachineController::class,'storeMachine'])->name('manage.machine.store');
+    Route::get('machines/{id}', [ManageMachineController::class,'editMachine'])->name('manage.machine.edit');
+    Route::put('machines/{id}', [ManageMachineController::class,'updateMachine'])->name('manage.machine.update');
+    Route::delete('machines/{id}', [ManageMachineController::class,'destroyMachine'])->name('manage.machine.destroy');
 
     //Manage Activity Code
-    Route::get('activity', [ManageActivityController::class, 'getIndex'])->name(
-        'manage.activity.index'
-    );
-    Route::get('activity/list/{param}', [
-        ManageActivityController::class,
-        'getListActivity',
-    ])->name('manage.activity.list');
-    Route::post('activity', [
-        ManageActivityController::class,
-        'storeActivity',
-    ])->name('manage.activity.store');
-    Route::get('activity/{id}', [
-        ManageActivityController::class,
-        'editActivity',
-    ])->name('manage.activity.edit');
-    Route::put('activity/{id}', [
-        ManageActivityController::class,
-        'updateActivity',
-    ])->name('manage.activity.update');
-    Route::delete('activity/{id}', [
-        ManageActivityController::class,
-        'destroyActivity',
-    ])->name('manage.activity.destroy');
+    Route::get('activity', [ManageActivityController::class, 'getIndex'])->name('manage.activity.index');
+    Route::get('activity/list/{param}', [ManageActivityController::class,'getListActivity'])->name('manage.activity.list');
+    Route::post('activity', [ManageActivityController::class,'storeActivity'])->name('manage.activity.store');
+    Route::get('activity/{id}', [ManageActivityController::class,'editActivity'])->name('manage.activity.edit');
+    Route::put('activity/{id}', [ManageActivityController::class,'updateActivity'])->name('manage.activity.update');
+    Route::delete('activity/{id}', [ManageActivityController::class,'destroyActivity'])->name('manage.activity.destroy');
 
     //Manage Product
-    Route::get('product', [ManageProductController::class, 'getIndex'])->name(
-        'manage.product.index'
-    );
-    Route::post('product', [
-        ManageProductController::class,
-        'storeProduct',
-    ])->name('manage.product.store');
-    Route::get('product/{id}', [
-        ManageProductController::class,
-        'editProduct',
-    ])->name('manage.product.edit');
-    Route::put('product/{id}', [
-        ManageProductController::class,
-        'updateProduct',
-    ])->name('manage.product.update');
-    Route::delete('product/{id}', [
-        ManageProductController::class,
-        'destroyProduct',
-    ])->name('manage.product.destroy');
+    Route::get('product', [ManageProductController::class, 'getIndex'])->name('manage.product.index');
+    Route::post('product', [ManageProductController::class,'storeProduct'])->name('manage.product.store');
+    Route::get('product/{id}', [ManageProductController::class,'editProduct'])->name('manage.product.edit');
+    Route::put('product/{id}', [ManageProductController::class,'updateProduct'])->name('manage.product.update');
+    Route::delete('product/{id}', [ManageProductController::class,'destroyProduct'])->name('manage.product.destroy');
 
     //Manage Shift
-    Route::get('shift', [ManageShiftController::class, 'getIndex'])->name(
-        'manage.shift.index'
-    );
-    Route::post('shift', [ManageShiftController::class, 'storeShift'])->name(
-        'manage.shift.store'
-    );
-    Route::get('shift/{id}', [ManageShiftController::class, 'editShift'])->name(
-        'manage.shift.edit'
-    );
-    Route::put('shift/{id}', [ManageShiftController::class, 'updateShift'])->name(
-        'manage.shift.update'
-    );
-    Route::delete('shift/{id}', [ManageShiftController::class, 'destroyShift'])->name(
-        'manage.shift.destroy'
-    );
+    Route::get('shift', [ManageShiftController::class, 'getIndex'])->name('manage.shift.index');
+    Route::post('shift', [ManageShiftController::class, 'storeShift'])->name('manage.shift.store');
+    Route::get('shift/{id}', [ManageShiftController::class, 'editShift'])->name('manage.shift.edit');
+    Route::put('shift/{id}', [ManageShiftController::class, 'updateShift'])->name('manage.shift.update');
+    Route::delete('shift/{id}', [ManageShiftController::class, 'destroyShift'])->name('manage.shift.destroy');
 
     //Manage KPI
     Route::get('kpi', [ManageKpiController::class, 'getIndex'])->name('manage.kpi.index');
@@ -235,12 +149,8 @@ Route::group(['prefix' => 'admin'], function () {
     //Input Oee HandsonTable
     Route::get('input', [OeeController::class, 'getIndex'])->name('input.oee');
     Route::post('input/activitycode', [OeeController::class, 'getActivity'])->name('input.oee.activity');
-    Route::get('oee/list', [OeeController::class, 'getOeeList'])->name(
-        'input.oee.list'
-    );
-    Route::post('oee', [OeeController::class, 'storeOee'])->name(
-        'input.oee.store'
-    );
+    Route::get('oee/list', [OeeController::class, 'getOeeList'])->name('input.oee.list');
+    Route::post('oee', [OeeController::class, 'storeOee'])->name('input.oee.store');
 
     //Management Level and Access Menu
     Route::get('/levels', [ManageLevelController::class, 'getLevel'])->name('manage.level.index');
@@ -305,6 +215,14 @@ Route::group(['prefix' => 'admin'], function () {
     //View Topic Results
     Route::get('/topic-results', [ViewTopicController::class, 'getResults'])->name('view.topic.result');
     Route::post('/topic-results/detail', [ViewTopicController::class, 'getDetail'])->name('view.topic.result.detail');
+
+    //Assign Operator to Line
+    Route::get('/assign/operator', [AssignOperatorController::class, 'getAssign'])->name('assign.operator.index');
+    Route::post('/assign/operator', [AssignOperatorController::class, 'storeAssignOperator'])->name('assign.operator.store');
+    Route::get('/assign/operator/{id}', [AssignOperatorController::class, 'editAssignOperator'])->name('assign.operator.edit');
+
+    //Manage Daily Activites
+    Route::get('/daily-activities', [ManageDailyController::class, 'getIndex'])->name('daily.activities.index');
 });
 
 //Prefix Operator
@@ -428,4 +346,9 @@ Route::group(['prefix' => 'ppic'], function(){
     Route::put('planorder/{id}', [ManagePlanOrderController::class, 'updatePlanOrder'])->name('manage.planorder.update');
     Route::put('planorder/release/{id}', [ManagePlanOrderController::class, 'putReleasePlanOrder'])->name('manage.planorder.release');
     Route::delete('planorder/{id}', [ManagePlanOrderController::class, 'destroyPlanOrder'])->name('manage.planorder.destroy');
+});
+
+//Prefix: Opr
+Route::group(['prefix' => 'opr'], function(){
+    Route::get('/', [OprController::class, 'getIndex'])->name('input.opr.index');
 });

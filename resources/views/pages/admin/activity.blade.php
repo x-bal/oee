@@ -231,7 +231,7 @@
             return method;
         }
         function reloadTable(){
-            daTable.draw();
+            daTable.ajax.reload(null, false).draw(false);
         }
         function create(){
             $('#userModal').modal('show');
@@ -353,7 +353,7 @@
                         $('#userModal').modal('hide');
                         $('.modal-body form').find('input[name="_method"]').remove();
                         orFail = (response.status == 'success'?'bg-success':'bg-danger');
-                        daTable.draw();
+                        daTable.ajax.reload(null, false).draw(false);
                         gritter(response.status, response.message, orFail);
                     }
                 })

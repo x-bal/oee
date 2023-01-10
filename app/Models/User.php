@@ -23,6 +23,7 @@ class User extends Authenticatable
         'txtname',
         'txtusername',
         'txtinitial',
+        'txtqrcode',
         'level_id',
         'password',
         'txtphoto',
@@ -42,12 +43,23 @@ class User extends Authenticatable
     // protected $casts = [
     //     'email_verified_at' => 'datetime',
     // ];
-    public static $rules = [
-        'txtname' => 'required',
-        'txtusername' => 'required',
-        'txtinitial' => 'required',
-        'level_id' => 'required',
-        'password' => 'required',
-        'txtphoto' => 'required',
-    ];
+    public static function rules($id = false){
+        if ($id) {
+            return [
+                'txtname' => 'required',
+                'txtusername' => 'required|unique:musers,txtusername,' . $id,
+                'txtinitial' => 'required|unique:musers,txtinitial,' . $id,
+                'level_id' => 'required',
+                'password' => 'required',
+            ];
+        } else {
+            return [
+                'txtname' => 'required',
+                'txtusername' => 'required|unique:musers,txtusername',
+                'txtinitial' => 'required|unique:musers,txtinitial',
+                'level_id' => 'required',
+                'password' => 'required',
+            ];
+        }
+    }
 }

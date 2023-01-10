@@ -75,25 +75,13 @@ class ManageOeeController extends Controller
         $line = substr($month, 6);
         $linename = Line::where('id', substr($month, 6))->first();
         $code = Activity::where('line_id', $line)->pluck('txtactivitycode');
-        $pending = Http::withBasicAuth('admin', '@0332022')->get(
-            'http://10.175.11.67/api-kmi/api/oee/line',
-            [
-                'BATCH_TYPE' => $linename->txtlinename,
-                'decode_content' => false,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-            ]
-        );
-        $datapending = json_decode($pending->getBody()->getContents(), true);
 
         return view('pages.admin.oee-management', [
             'line_id' => $line,
             'year' => $year,
             'month' => $bulan,
             'code' => $code,
-            'line' => $linename,
-            'okp' => collect($datapending['data'])->pluck('BATCH_NO'),
+            'line' => $linename
         ]);
     }
     public function getOeeList(Request $request)

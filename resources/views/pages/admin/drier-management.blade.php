@@ -165,7 +165,6 @@
                 },
                 {
                     data: 'okp_drier',
-                    source: @json($okp),
                     type: 'autocomplete',
                     strict: false
                 },

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\ServerModel as Server;
-use Symfony\Component\Process\Process;
 
 class ManageServerController extends Controller
 {
@@ -114,7 +113,7 @@ class ManageServerController extends Controller
     public function activateServer($param)
     {
         if ($param == 'stop') {
-            $command = 'taskkill /FI "WindowTitle eq Subscribe"';
+            $command = 'sudo /bin/systemctl stop phpmqtt.service';
             exec($command, $output);
             return response()->json(
                 [
@@ -125,9 +124,8 @@ class ManageServerController extends Controller
                 200
             );
         } else {
-            chdir('../../mqtt_php');
-            // $command = 'sudo /bin/systemctl start phpmqtt.service';
-            $command = 'start sub.bat';
+            // chdir('../../mqtt_php');
+            $command = 'sudo /bin/systemctl start phpmqtt.service';
             exec($command, $output);
             return response()->json(
                 [
@@ -141,8 +139,7 @@ class ManageServerController extends Controller
     }
     public function checkServerStatus()
     {
-        // $command = 'systemctl status phpmqtt';
-        $command = 'tasklist /FI "WindowTitle eq Subscribe"';
+        $command = 'systemctl status phpmqtt';
         $status = exec($command, $output, $return_var);
         return response()->json(
             [
