@@ -212,7 +212,49 @@
                         type: "DELETE",
                         dataType: "JSON",
                         success: function(response){
-                            daTable.draw();
+                            daTable.ajax.reload(null, false);
+                            orFail = (response.status == 'success'?'bg-success':'bg-danger');
+                            gritter(response.status, response.message, orFail);
+                        }
+                    })
+                }
+            });
+        }
+        function release(id){
+            let releaseUrl = "{{ route('manage.planorder.release', ':id') }}";
+            releaseUrl = releaseUrl.replace(':id', id);
+            let orFail = '';
+            swal({
+                title: 'Are you sure?',
+                text: 'You will not be able to recover this data!',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: 'Cancel',
+                        value: null,
+                        visible: true,
+                        className: 'btn btn-default',
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: 'Release',
+                        value: true,
+                        visible: true,
+                        className: 'btn btn-primary',
+                        closeModal: true
+                    }
+                }
+            }).then((isConfirm) => {
+				if (isConfirm) {
+                    $.ajax({
+                        url: releaseUrl,
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                        },
+                        type: "PUT",
+                        dataType: "JSON",
+                        success: function(response){
+                            daTable.ajax.reload(null, false);
                             orFail = (response.status == 'success'?'bg-success':'bg-danger');
                             gritter(response.status, response.message, orFail);
                         }
@@ -254,7 +296,7 @@
                         $('#userModal').modal('hide');
                         $('.modal-body form').find('input[name="_method"]').remove();
                         orFail = (response.status == 'success'?'bg-success':'bg-danger');
-                        daTable.draw();
+                        daTable.ajax.reload(null, false);
                         gritter(response.status, response.message, orFail);
                     }
                 })

@@ -9,5 +9,5 @@ class PlanOrderModel extends Model
 {
     use HasFactory;
     protected $table = 'mplanorder';
-    protected $fillable = ['line_id', 'product_id', 'txtbatchcode', 'intstatus', 'inttarget'];
+    protected $fillable = ['line_id', 'product_id', 'txtbatchcode', 'is_released', 'is_completed', 'inttarget'];
 }

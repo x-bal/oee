@@ -10,6 +10,7 @@ use App\Models\MenuModel as Menu;
 use App\Models\LineProcess as Line;
 use App\Models\KpiModel as KPI;
 use App\Models\User;
+use App\Models\AssignModel as Assign;
 
 class QrLoginController extends Controller
 {
@@ -71,7 +72,9 @@ class QrLoginController extends Controller
     {
         $user = User::where('txtqrcode', $request->txtqrcode)->first();
         if (Auth::loginUsingId($user->id)) {
+            $line = Assign::where('user_id', $user->id)->first();
             $this->getSubmenu($user->id, $user->level_id);
+            session()->put('line_id', $line->line_id);
             return response()->json(
                 [
                     'status' => 'success',

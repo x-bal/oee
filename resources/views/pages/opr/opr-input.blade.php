@@ -10,6 +10,7 @@
     <link href="/assets/plugins/simple-calendar/dist/simple-calendar.css" rel="stylesheet" />
     <link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
     <link href="/assets/plugins/nvd3/build/nv.d3.css" rel="stylesheet" />
+    <link href="/assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @section('content')
@@ -43,7 +44,7 @@
                                     <tr>
                                         <td>Product Name</td>
                                         <td>:</td>
-                                        <td><b>PRODUK</b></td>
+                                        <td class="productname"><b>PRODUK</b></td>
                                     </tr>
                                     <tr>
                                         <td>Size</td>
@@ -53,8 +54,7 @@
                                     <tr>
                                         <td>Line Process</td>
                                         <td>:</td>
-                                        <td><b>PP MEMBER 72</b>
-                                        </td>
+                                        <td class="linename"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -65,7 +65,7 @@
                                     <tr>
                                         <td>Batch Order</td>
                                         <td>:</td>
-                                        <td><b>DUMMY DATA</b></td>
+                                        <td class="batchcode"></td>
                                     </tr>
                                     <tr>
                                         <td>Production Code</td>
@@ -86,7 +86,7 @@
                                     <tr>
                                         <td>Production Release</td>
                                         <td>:</td>
-                                        <td><b>16/10/2022</b></td>
+                                        <td class="is_released"></td>
                                     </tr>
                                     <tr>
                                         <td>Operator</td>
@@ -96,7 +96,7 @@
                                     <tr>
                                         <td>Standar Speed</td>
                                         <td>:</td>
-                                        <td><b>2 pcs/minutes</b></td>
+                                        <td class="stdspeed"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -182,6 +182,86 @@
         </div>
     </div>
     <!-- END row -->
+    <!-- #modal-dialog -->
+    <div class="modal fade" id="oeeModal" role="dialog">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-light">
+                <h4 class="modal-title">Modal Dialog</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+            </div>
+            <div class="modal-body">
+            <form action="" method="post" data-parsley-validate="true">
+                @csrf
+                <div class="mb-3">
+                    <label for="Activity">Activity* :</label>
+                    <select name="activity_id" id="Activity" class="select2 form-control" data-parsley-required="true">
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="Start">Start* :</label>
+                    <input type="text" id="Start" name="tmstart" class="form-control" placeholder="Enter Start Time" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="Finish">Finish* :</label>
+                    <input type="text" id="Finish" name="tmfinish" class="form-control" placeholder="Enter Finish Time" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="Duration">Duration (minutes)* :</label>
+                    <input type="text" id="Duration" name="intduration" class="form-control" placeholder="Enter Duration Time" disabled/>
+                </div>
+                <div class="mb-3">
+                    <label for="Waiting">Waiting Technician (minutes) :</label>
+                    <input type="number" id="Waiting" name="waiting_tech" class="form-control" placeholder="Waiting Technician Time"/>
+                </div>
+                <div class="mb-3">
+                    <label for="Repair">Repair Time (minutes) :</label>
+                    <input type="number" id="Repair" name="repair_problem" class="form-control" placeholder="Repair Time"/>
+                </div>
+                <div class="mb-3">
+                    <label for="Trial">Trial Time (minutes) :</label>
+                    <input type="number" id="Trial" name="trial_time" class="form-control" placeholder="Trial Time"/>
+                </div>
+                <div class="mb-3">
+                    <label for="TechName">Technician Name :</label>
+                    <input type="text" id="TechName" name="tech_name" class="form-control" placeholder="Technician Name"/>
+                </div>
+                <div class="mb-3">
+                    <label for="BasCom">Basic Competency :</label>
+                    <select name="bascom" id="BasCom" class="form-control" data-parsley-required="true">
+                        <option value=""></option>
+                        @foreach ($bascom as $key => $val)
+                            <option value="{{ $val }}">{{ $val }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="CategoryBR">Category BreakDown :</label>
+                    <select name="catbr" id="CategoryBR" class="form-control" data-parsley-required="true">
+                        <option value=""></option>
+                        @foreach ($catbr as $key => $val)
+                            <option value="{{ $val }}">{{ $val }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="CategoryAm">Category AM/PM :</label>
+                    <select name="catampm" id="CategoryAm" class="form-control" data-parsley-required="true">
+                        <option value=""></option>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+    <!-- End-Modal-Dialog -->
 
     @endsection
     @push('scripts')
@@ -205,54 +285,144 @@
         <script src="/assets/plugins/pdfmake/build/pdfmake.min.js"></script>
         <script src="/assets/plugins/pdfmake/build/vfs_fonts.js"></script>
         <script src="/assets/plugins/jszip/dist/jszip.min.js"></script>
+        <script src="/assets/plugins/select2/dist/js/select2.min.js"></script>
+        <script src="{{ asset('assets/js/paho.mqtt.js') }}" type="text/javascript"></script>
         <script>
-            var daTable = $('#daTable').DataTable();
-            var handleProgressChart = function() {
-                var ctx3 = document.getElementById('progress-chart').getContext('2d');
-                const labels = ['Progress'];
-                const data = {
-                    labels: labels,
-                    datasets: [{
-                            label: 'PR',
-                            data: '20',
-                            backgroundColor: 'green'
-                        },
-                        {
-                            label: 'BR',
-                            data: '50',
-                            backgroundColor: 'red'
-                        },
-                    ]
-                };
-                const config = {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            title: {
-                                display: true,
-                                text: "Progress",
-                            }
-                        },
-                        indexAxis: 'y',
-                        scales: {
-                            x: {
-                                stacked: true,
-                            },
-                            y: {
-                                stacked: true
-                            }
-                        }
-                    },
-                };
-                var barChart = new Chart(ctx3, config);
+            let url = "";
+            let activityUrl = "{{ route('checker.list.activity') }}";
+            function getUrl(){
+                return url;
+            }
+            var daTable = $('#daTable').DataTable({
+                ajax: "{{ route('input.opr.index') }}",
+                processing: true,
+                serverSide: true,
+                columns: [
+                    {data: 'DT_RowIndex'},
+                    {data: 'start'},
+                    {data: 'finish'},
+                    {data: 'lamakejadian'},
+                    {data: 'txtactivityname'},
+                    {data: 'action'}
+                ]
+            });
+            function reloadTable() {
+                daTable.ajax.reload(null, false);
+            }
+            function getDetails(){
+                $.get("{{ route('checker.details.get') }}", function(response){
+                    if (response.planorder != null) {
+                        $('td.productname').html('<b>'+response.planorder.txtproductname+'</b>');
+                        $('td.linename').html('<b>'+response.planorder.txtlinename+'</b>');
+                        $('td.batchcode').html('<b>'+response.planorder.txtbatchcode+'</b>');
+                        $('td.stdspeed').html('<b>'+response.planorder.floatstdspeed+' pcs/minutes</b>');
+                        $('td.is_released').html('<b>'+response.planorder.is_released+'</b>');
+                    }
+                })
+            }
+            function OeeModal(id){
+                let oeeUrl = "{{ route('checker.detail.oee', ':id') }}";
+                oeeUrl = oeeUrl.replace(':id', id);
+                url = "{{ route('checker.oee.update', ':id') }}";
+                url = url.replace(':id', id);
+                $.get(oeeUrl, function(response){
+                    $('.modal-header h4').text('Input Oee');
+                    $('#oeeModal').modal('show');
+                    $('input[name="tmstart"]').val(response.oee.start);
+                    $('input[name="tmfinish"]').val(response.oee.finish);
+                    $('input[name="intduration"]').val(response.oee.lamakejadian/60);
+                })
+            }
+            function getActivityList(){
+                let wrapper = $('select[name="activity_id"]');
+                let opt = '';
+                wrapper.find('option').remove();
+                $.get(activityUrl, function(response){
+                    let activity = response.activity;
+                    $.each(activity, function(i, val){
+                        opt += '<option value="'+activity[i].id+'">'+activity[i].txtactivitycode+' - '+ activity[i].txtdescription +'</option>';
+                    })
+                    wrapper.append(opt).trigger('change');
+                })
+            }
+            let pahoConfig = {
+                hostname: "{{ $broker->txthost }}", //The hostname is the url, under which your FROST-Server resides.
+                port: "{{ $broker->intwsport }}", //The port number is the WebSocket-Port,
+                clientId: "ClientId-75tug6rkbbjawdhao876dawdas" //Should be unique for every of your client connections.
+            }
+            client = new Paho.MQTT.Client(pahoConfig.hostname, Number(pahoConfig.port), pahoConfig.clientId);
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+            // called when the client connects
+            function onConnect() {
+                // Once a connection has been made, make a subscription and send a message.
+                console.log("onConnect");
+                let topics = @json($topics);
+                $.each(topics, function(i, val){
+                    client.subscribe(topics[i].txttopic);
+                })
+                // message = new Paho.MQTT.Message("Hello");
+                // message.destinationName = "World";
+                // client.send(message);
+            }
+            // called when the client loses its connection
+            function onConnectionLost(responseObject) {
+                if (responseObject.errorCode !== 0) {
+                    console.log("onConnectionLost:" + responseObject.errorMessage);
+                }
+            }
+
+            // called when a message arrives
+            function onMessageArrived(message) {
+                console.log("onMessageArrived:" + message.payloadString);
+                reloadTable();
+                getDetails();
+            }
+            function gritter(title, text, status){
+                $.gritter.add({
+                    title: title,
+                    text: '<p class="text-light">'+text+'</p>',
+                    class_name: status,
+                    time: 1000,
+                });
             }
             $(document).ready(function() {
-                handleProgressChart();
+                getActivityList();
+                $('select[name="activity_id"]').select2({
+                    dropdownParent: $('#oeeModal'),
+                    placeholder: "Select Activity",
+                    allowClear: true
+                });
+                $('#CategoryBR').select2({
+                    dropdownParent: $('#oeeModal'),
+                    placeholder: "Select Category Breakdown",
+                    allowClear: true
+                });
+                $('#BasCom').select2({
+                    dropdownParent: $('#oeeModal'),
+                    placeholder: "Select Basic Competency",
+                    allowClear: true
+                });
+                getDetails();
+                client.connect({
+                    onSuccess: onConnect
+                });
+                $('.modal-body form').on('submit', function(e){
+                    e.preventDefault();
+                    let orFail = '';
+                    $.ajax({
+                        url: getUrl(),
+                        method: "PUT",
+                        data: $(this).serialize(),
+                        dataType: "JSON",
+                        success: function(response){
+                            $('#oeeModal').modal('hide');
+                            orFail = (response.status == 'success'?'bg-success':'bg-danger');
+                            daTable.ajax.reload(null, false);
+                            gritter(response.status, response.message, orFail);
+                        }
+                    })
+                })
             })
         </script>
     @endpush

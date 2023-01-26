@@ -22,40 +22,22 @@ class ManagePlanOrderController extends Controller
             return DataTables::of($planorder)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
-                    if ($row->intstatus == 0) {
-                        $btn_release = '<a type="button" class="btn btn-sm btn-primary">Release</a>';
-                        $btn_edit = '<a type="button" class="btn btn-sm btn-success" onclick="edit('.$row->id.')">Edit</a>';
-                        $btn_delete = '<a type="button" class="btn btn-sm btn-danger">Delete</a>';
+                    $btn_release = '<a type="button" class="btn btn-sm btn-primary" onclick="release('.$row->id.')"><i class="fas fa-step-forward"></i></a>';
+                    $btn_edit = '<a type="button" class="btn btn-sm btn-success" onclick="edit('.$row->id.')"><i class="fas fa-pen"></i></a>';
+                    $btn_delete = '<a type="button" class="btn btn-sm btn-danger" onclick="destroy('.$row->id.')"><i class="fas fa-trash"></i></a>';
+                    if (is_null($row->is_released) && is_null($row->is_completed)) {
                         return $btn_release.' '.$btn_edit.' '.$btn_delete;
                     } else {
-                        $notif = 'Unavailable';
-                        return $notif;
+                        return 'Unavailable';
                     }
                 })
                 ->addColumn('status', function($row){
-                    switch ($row->intstatus) {
-                        case 0:
-                            $status = '<span class="badge bg-purple">Created</span>';
-                            break;
-                        case 1:
-                            $status = '<span class="badge bg-primary">Released</span>';
-                            break;
-                        case 2:
-                            $status = '<span class="badge bg-primary">Processed</span>';
-                            break;
-                        case 3:
-                            $status = '<span class="badge bg-primary">Step Processed</span>';
-                            break;
-                        case 4:
-                            $status = '<span class="badge bg-primary">Step Released</span>';
-                            break;
-                        case 5:
-                            $status = '<span class="badge bg-success">Finish Order</span>';
-                            break;
-
-                        default:
-                            $status = '<span class="badge bg-secondary">Created</span>';
-                            break;
+                    if (is_null($row->is_released) && is_null($row->is_completed)) {
+                        $status = '<span class="badge bg-purple">Created</span>';
+                    } elseif (is_null($row->is_completed)) {
+                        $status = '<span class="badge bg-primary">Released</span>';
+                    } else {
+                        $status = '<span class="badge bg-success">Completed</span>';
                     }
                     return $status;
                 })
@@ -105,7 +87,7 @@ class ManagePlanOrderController extends Controller
             return response()->json(
                 [
                     'status' => 'error',
-                    'message' => 'Server data not found !',
+                    'message' => 'Plan Order not found !',
                 ],
                 404
             );
@@ -117,12 +99,50 @@ class ManagePlanOrderController extends Controller
     }
     public function destroyPlanOrder($id)
     {
-        # code...
+        $planorder = PlanOrder::find($id);
+        if ($planorder) {
+            $planorder->delete();
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Plan Order deleted successfully'
+                ],
+                200
+            );
+        } else {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Plan Order not found !',
+                ],
+                404
+            );
+        }
     }
 
     //Release Plan Order
     public function putReleasePlanOrder($id, Request $request)
     {
-        # code...
+        $planorder = PlanOrder::find($id);
+        if ($planorder) {
+            $planorder->update([
+                'is_released' => date('Y-m-d H:i:s')
+            ]);
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Plan Order Released Successfully',
+                ],
+                200
+            );
+        } else {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Plan Order not found !',
+                ],
+                404
+            );
+        }
     }
 }

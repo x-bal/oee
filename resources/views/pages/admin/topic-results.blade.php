@@ -70,7 +70,7 @@
     <script src="/assets/plugins/gritter/js/jquery.gritter.js"></script>
     <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
     <script src="/assets/plugins/select2/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+    <script src="{{ asset('assets/js/paho.mqtt.js') }}" type="text/javascript"></script>
     <script>
         let action = '';
         let method = '';
