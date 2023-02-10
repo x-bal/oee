@@ -155,4 +155,27 @@ class OprController extends Controller
             );
         }
     }
+    function putFinishOrder($id){
+        $planorder = Planorder::find($id);
+        if ($planorder) {
+            $planorder->update([
+                'is_completed' => date('Y-m-d H:i:s')
+            ]);
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Plan Order finished successfully !'
+                ],
+                200
+            );
+        } else {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => "Can't find Plan Order !"
+                ],
+                404
+            );
+        }
+    }
 }

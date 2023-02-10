@@ -7,4 +7,5 @@ Route::group(['prefix' => 'checker'], function(){
     Route::get('/oee/{id}', [OprController::class, 'getOeeDetail'])->name('checker.detail.oee');
     Route::get('/oee/list/activity', [OprController::class, 'getListActivity'])->name('checker.list.activity');
     Route::put('/oee/{id}', [OprController::class, 'putInputOee'])->name('checker.oee.update');
+    Route::put('/oee/finish/{id}', [OprController::class, 'putFinishOrder'])->name('checker.planorder.finish');
 });

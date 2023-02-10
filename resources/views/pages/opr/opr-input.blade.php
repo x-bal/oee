@@ -114,6 +114,9 @@
                             <div class="panel border">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">Input Downtime</h4>
+                                    <div class="panel-heading-btn">
+                                        <a type="button" class="btn btn-success btn-sm" onclick="finishOrder()"><i class="fas fa-clipboard-check"></i> Finish</a>
+                                    </div>
                                 </div>
                                 <hr>
                                 <div class="panel-body">
@@ -286,6 +289,7 @@
         <script src="/assets/plugins/pdfmake/build/vfs_fonts.js"></script>
         <script src="/assets/plugins/jszip/dist/jszip.min.js"></script>
         <script src="/assets/plugins/select2/dist/js/select2.min.js"></script>
+        <script src="/assets/plugins/sweetalert/dist/sweetalert.min.js"></script>
         <script src="{{ asset('assets/js/paho.mqtt.js') }}" type="text/javascript"></script>
         <script>
             let url = "";
@@ -344,6 +348,36 @@
                     })
                     wrapper.append(opt).trigger('change');
                 })
+            }
+            function finishOrder(){
+                let finishUrl = "{{ route('checker.planorder.finish', ':id') }}";
+                swal({
+                    title: 'Finish this Order?',
+                    text: 'You will not be able to recover this data!',
+                    icon: 'warning',
+                    buttons: {
+                        cancel: {
+                            text: 'Cancel',
+                            value: null,
+                            visible: true,
+                            className: 'btn btn-default',
+                            closeModal: true,
+                        },
+                        confirm: {
+                            text: 'Finish',
+                            value: true,
+                            visible: true,
+                            className: 'btn btn-success',
+                            closeModal: true
+                        }
+                    }
+                }).then((isConfirm) => {
+                    if (isConfirm) {
+                        $.ajax({
+                            url
+                        })
+                    }
+                });
             }
             let pahoConfig = {
                 hostname: "{{ $broker->txthost }}", //The hostname is the url, under which your FROST-Server resides.
