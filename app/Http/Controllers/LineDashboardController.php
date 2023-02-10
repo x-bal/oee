@@ -15,39 +15,31 @@ class LineDashboardController extends Controller
     public function getIndex(Request $request)
     {
         $view = Auth::check()?'pages.line-dashboard':'pages.auth.line';
-        $line_id = Auth::check()?$request->segment(3):$request->segment(2);
-        $detail_oee = Oee::selectRaw('produk, production_code, expired_date, okp_packing, floatbatchsize, floatstdspeed, SUM(finish_good) as    finish_good, SUM(rework) as rework, SUM(reject) as reject, operator,
-        JSON_ARRAYAGG(JSON_OBJECT("category", mact.txtcategory, "activitycode", mact.txtactivitycode, "remark", oee.remark)) as listbr')
-            ->where('tanggal', (!empty($request->tanggal)?$request->tanggal:date('Y-m-d')))
-            ->join('mproduct', 'mproduct.txtartcode','=','oee.produk_code')
-            ->join('mactivitycode as mact','mact.id','=','oee.activity_id')
-            ->orderBy('oee.id', 'DESC')
+        $poe = DB::table('mkpi')->where('txtyear', (!empty($request->year)?$request->year:date('Y')))->first();
+        $oee = DB::table('tr_kpi')
+            ->selectRaw('
+                IFNULL(CAST((SUM(ar)/COUNT(ar)) AS DECIMAL(10, 2)), 0) AS ar,
+                IFNULL(CAST((SUM(pr)/COUNT(pr)) AS DECIMAL(10, 2)), 0) AS pr,
+                IFNULL(CAST((SUM(qr)/COUNT(qr)) AS DECIMAL(10, 2)), 0) AS qr
+            ')
+            ->where('kpi_id', (!empty($poe)?$poe->id:0))
             ->first();
         $actual_oee = DB::table('v_calc_poe')
             ->selectRaw('
-                id, SUM(total_output),
+                id, YEAR(tanggal), SUM(total_output),
                 IFNULL(CAST((SUM(operating_time)/SUM(loading_time))*100 AS DECIMAL(10, 2)), 0) AS ar,
                 IFNULL(CAST((SUM(net_optime)/SUM(operating_time))*100 AS DECIMAL(10, 2)), 0) AS pr,
                 IFNULL(CAST((SUM(value_adding)/SUM(net_optime))*100 AS DECIMAL(10, 2)), 0) AS qr
             ')
-            ->where('tanggal', (!empty($request->tanggal)?$request->tanggal:date('Y-m-d')))
-            ->where('line_id', $line_id)
+            ->whereYear('tanggal', (!empty($request->year)?$request->year:date('Y')))
+            ->groupBy(DB::raw('YEAR(tanggal)'))
             ->first();
-        $oee_shift = DB::table('v_calc_poe')
-            ->selectRaw('
-                id, shift_id,
-                IFNULL(CAST((SUM(operating_time)/SUM(loading_time))*100 AS DECIMAL(10, 2)), 0) AS ar,
-                IFNULL(CAST((SUM(net_optime)/SUM(operating_time))*100 AS DECIMAL(10, 2)), 0) AS pr,
-                IFNULL(CAST((SUM(value_adding)/SUM(net_optime))*100 AS DECIMAL(10, 2)), 0) AS qr
-            ')
-            ->where('tanggal', (!empty($request->tanggal)?$request->tanggal:date('Y-m-d')))
-            ->where('line_id', $line_id)
-            ->groupBy('v_calc_poe.shift_id')
-            ->get();
+        $years = KPI::groupBy('txtyear')->get();
         return view($view, [
-            'oee' => $actual_oee,
-            'oee_shift' => $oee_shift,
-            'detail_oee' => $detail_oee,
+            'target_poe' => (!empty($poe)?$poe->poe:0),
+            'target_oee' => $oee,
+            'actual_oee' => $actual_oee,
+            'years' => $years,
             'lines' => Line::all()
         ]);
     }

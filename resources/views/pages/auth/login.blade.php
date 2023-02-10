@@ -16,7 +16,8 @@
         <!-- END navbar-header -->
         <!-- BEGIN header-nav -->
         <div class="navbar-nav">
-            <button type="button" class="btn btn-default" data-bs-toggle="modal" data-bs-target="#loginModal">Login <i class="fas fa-sign-in-alt"></i></button>
+            <button type="button" class="btn btn-default" data-bs-toggle="modal" data-bs-target="#loginModal">Login <i
+                    class="fas fa-sign-in-alt"></i></button>
         </div>
         <!-- END header-nav -->
     </div>
@@ -115,8 +116,7 @@
                         @csrf
                         <h4 class="title">
                             {{-- <strong>KALBE</strong><span style="color: #84c425;"> Nutritionals</span> --}}
-                            <img src="{{ asset('assets/img/logo/dharma.png') }}" alt="login-Dharma-logo"
-                                width="256">
+                            <img src="{{ asset('assets/img/logo/dharma.png') }}" alt="login-Dharma-logo" width="256">
                         </h4>
                         <p class="description">Login here Using Username & Password</p>
                         <div class="form-group">
@@ -140,23 +140,53 @@
     </div>
 @endsection
 @push('script')
-    <script src="{{ asset('assets/plugins/chart.js/dist/chartjs-plugin-datalabels.min.js') }}"></script>
     <script>
         const color = ['FF0000', 'FFFF00', '00CC00', 'FFFFFFF'];
         const MachineID = ['Spot1', 'Spot2', 'Spot3', 'Spot4', 'Spot5', 'Spot6',
             'Robot1', 'Robot2', 'Robot3', 'Robot4', 'Robot5',
             'Mainline', 'SubAssy', 'SpotAssy', 'Retapping',
             'D03SA1', 'D03SA2', 'D03GA1', 'D03GA11', 'D03GA2', 'D03GA3', 'D03GA4', 'D03GA5',
-            'D74SA1', 'D74SA2', 'D74GA1', 'D74GA11', 'D74GA2', 'D74GA3', 'D74GA4', 'D74GA5'];
-        function changeColor(){
+            'D74SA1', 'D74SA2', 'D74GA1', 'D74GA11', 'D74GA2', 'D74GA3', 'D74GA4', 'D74GA5'
+        ];
+
+        function changeColor() {
             let rand = Math.floor(Math.random(1, 2) * 4);
             console.log(rand);
-            $.each(MachineID, function(i, val){
-                $('#'+MachineID[i]).css('fill', '#'+color[rand]);
+            $.each(MachineID, function(i, val) {
+                $('#' + MachineID[i]).css('fill', '#' + color[rand]);
             })
+        }
+
+        function gritter(title, text, status) {
+            $.gritter.add({
+                title: title,
+                text: '<p class="text-light">' + text + '</p>',
+                class_name: status,
+                time: 1000,
+            });
         }
         $(document).ready(function() {
             setInterval(changeColor, 1000);
+            $('.modal-body form').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "{{ route('auth.post.login') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    dataType: "JSON",
+                    success: function(response) {
+                        $('#loginModal').modal('hide');
+                        gritter(response.status, response.message, 'bg-success');
+                        window.location.href = "{{ route('dashboard.index') }}";
+                    },
+                    error: function(response) {
+                        $('input[name="password"]').val('');
+                        $('#loginModal').modal('hide');
+                        gritter(response.responseJSON.status, response.responseJSON.message,
+                            'bg-danger');
+                    }
+                })
+            })
         })
     </script>
 @endpush
