@@ -11,7 +11,7 @@ use App\Models\ProductModel as Product;
 
 class ManagePlanOrderController extends Controller
 {
-    public function getPlanOrder(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $planorder = PlanOrder::select('mplanorder.*', 'mline.txtlinename', 'mproduct.txtartcode')
@@ -50,7 +50,7 @@ class ManagePlanOrderController extends Controller
             ]);
         }
     }
-    public function storePlanOrder(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $create = PlanOrder::create($input);
@@ -72,7 +72,7 @@ class ManagePlanOrderController extends Controller
             );
         }
     }
-    public function editPlanOrder($id)
+    public function edit($id)
     {
         $planorder = PlanOrder::find($id);
         if ($planorder) {
@@ -93,11 +93,11 @@ class ManagePlanOrderController extends Controller
             );
         }
     }
-    public function updatePlanOrder($id, Request $request)
+    public function update($id, Request $request)
     {
         # code...
     }
-    public function destroyPlanOrder($id)
+    public function destroy($id)
     {
         $planorder = PlanOrder::find($id);
         if ($planorder) {

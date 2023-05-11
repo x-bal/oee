@@ -9,7 +9,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageLineController extends Controller
 {
-    public function getIndex(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $lines = Line::all();
@@ -33,7 +33,7 @@ class ManageLineController extends Controller
             return view('pages.admin.line');
         }
     }
-    public function storeLine(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $line = Line::create($input);
@@ -55,7 +55,7 @@ class ManageLineController extends Controller
             );
         }
     }
-    public function editLine($id)
+    public function edit($id)
     {
         $line = Line::findOrfail($id);
         if ($line) {
@@ -76,7 +76,7 @@ class ManageLineController extends Controller
             );
         }
     }
-    public function updateLine($id, Request $request)
+    public function update($id, Request $request)
     {
         $line = Line::findOrfail($id);
         $input = $request->all();
@@ -99,7 +99,7 @@ class ManageLineController extends Controller
             );
         }
     }
-    public function destroyLine($id)
+    public function destroy($id)
     {
         $line = Line::findOrfail($id);
         if ($line) {

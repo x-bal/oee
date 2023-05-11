@@ -10,7 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageActivityController extends Controller
 {
-    public function getIndex(Line $lines)
+    public function index(Line $lines)
     {
         $line = $lines->all();
         $kategori = [
@@ -63,7 +63,7 @@ class ManageActivityController extends Controller
             ->rawColumns(['action'])
             ->make(true);
     }
-    public function storeActivity(Request $request)
+    public function store(Request $request)
     {
         $name = $request->txtactivityname;
         $item = $request->txtactivityitem;
@@ -105,7 +105,7 @@ class ManageActivityController extends Controller
             );
         }
     }
-    public function editActivity($id)
+    public function edit($id)
     {
         $data = Activity::findorfail($id);
         if ($data) {
@@ -126,7 +126,7 @@ class ManageActivityController extends Controller
             );
         }
     }
-    public function updateActivity($id, Request $request)
+    public function update($id, Request $request)
     {
         $activity = Activity::findOrfail($id);
         $name = $request->txtactivityname;
@@ -167,7 +167,7 @@ class ManageActivityController extends Controller
             );
         }
     }
-    public function destroyActivity($id)
+    public function destroy($id)
     {
         $activity = Activity::findOrfail($id);
         if ($activity) {

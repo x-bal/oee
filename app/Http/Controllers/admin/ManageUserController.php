@@ -15,7 +15,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageUserController extends Controller
 {
-    public function getIndex(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $users = User::join('mlevels', 'mlevels.id', '=', 'musers.level_id')
@@ -61,7 +61,7 @@ class ManageUserController extends Controller
             return $qr;
         }
     }
-    public function storeUser(Request $request)
+    public function store(Request $request)
     {
         $input = [
             'txtname' => $request->input('txtname'),
@@ -107,7 +107,7 @@ class ManageUserController extends Controller
             }
         }
     }
-    public function editUser($id)
+    public function edit($id)
     {
         $user = User::findOrfail($id);
         if ($user) {
@@ -130,7 +130,7 @@ class ManageUserController extends Controller
             );
         }
     }
-    public function updateUser($id, Request $request)
+    public function update($id, Request $request)
     {
         $user = User::findOrfail($id);
         $input = [
@@ -199,7 +199,7 @@ class ManageUserController extends Controller
             );
         }
     }
-    public function destroyUser($id)
+    public function destroy($id)
     {
         $user = User::findOrfail($id);
         if ($user) {

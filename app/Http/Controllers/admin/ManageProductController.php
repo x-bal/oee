@@ -11,7 +11,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageProductController extends Controller
 {
-    public function getIndex(Line $line, Request $request)
+    public function index(Line $line, Request $request)
     {
         if ($request->wantsJson()) {
             $data = Product::select('mproduct.*', 'mline.txtlinename')
@@ -39,7 +39,7 @@ class ManageProductController extends Controller
             ]);
         }
     }
-    public function storeProduct(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -90,7 +90,7 @@ class ManageProductController extends Controller
             }
         }
     }
-    public function editProduct($id)
+    public function edit($id)
     {
         $data = Product::findorfail($id);
         if ($data) {
@@ -111,7 +111,7 @@ class ManageProductController extends Controller
             );
         }
     }
-    public function updateProduct($id, Request $request)
+    public function update($id, Request $request)
     {
         $input = [
             'line_id' => $request->line_id,
@@ -165,7 +165,7 @@ class ManageProductController extends Controller
             );
         }
     }
-    public function destroyProduct($id)
+    public function destroy($id)
     {
         $product = Product::findOrfail($id);
         if ($product) {

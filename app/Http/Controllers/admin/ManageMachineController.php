@@ -10,37 +10,36 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageMachineController extends Controller
 {
-    public function getindex(Line $lines)
+    public function index(Request $request, Line $lines)
     {
-        $line = $lines->all();
-        return view('pages.admin.machine', [
-            'lines' => $line,
-        ]);
+        if ($request->wantsJson()) {
+            $machines = Machine::select('mmachines.*', 'mline.txtlinename')
+                ->join('mline', 'mline.id', '=', 'mmachines.line_id')
+                ->get();
+            return DataTables::of($machines)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn_edit =
+                        '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
+                        $row->id .
+                        ')"><i class="fas fa-edit"></i></a>';
+                    $btn_delete =
+                        '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
+                        $row->id .
+                        ')"><i class="fas fa-trash"></i></a>';
+                    $btn = $btn_edit . ' ' . $btn_delete;
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        } else {
+            $line = $lines->all();
+            return view('pages.admin.machine', [
+                'lines' => $line,
+            ]);
+        }
     }
-    public function getListMachines(Machine $machine)
-    {
-        $machines = $machine
-            ->select('mmachines.*', 'mline.txtlinename')
-            ->join('mline', 'mline.id', '=', 'mmachines.line_id')
-            ->get();
-        return DataTables::of($machines)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btn_edit =
-                    '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
-                    $row->id .
-                    ')"><i class="fas fa-edit"></i></a>';
-                $btn_delete =
-                    '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
-                    $row->id .
-                    ')"><i class="fas fa-trash"></i></a>';
-                $btn = $btn_edit . ' ' . $btn_delete;
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
-    }
-    public function storeMachine(Request $request)
+    public function store(Request $request)
     {
         $input = [
             'line_id' => $request->input('line_id'),
@@ -76,7 +75,7 @@ class ManageMachineController extends Controller
             );
         }
     }
-    public function editMachine($id)
+    public function edit($id)
     {
         $machine = Machine::findOrfail($id);
         if ($machine) {
@@ -97,7 +96,7 @@ class ManageMachineController extends Controller
             );
         }
     }
-    public function updateMachine($id, Request $request)
+    public function update($id, Request $request)
     {
         $machine = Machine::findOrfail($id);
         $input = [
@@ -137,7 +136,7 @@ class ManageMachineController extends Controller
             );
         }
     }
-    public function destroyMachine($id)
+    public function destroy($id)
     {
         $machine = Machine::findOrfail($id);
         if ($machine) {

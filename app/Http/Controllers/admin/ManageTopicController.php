@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class ManageTopicController extends Controller
 {
-    public function getTopic(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $topics = Topic::selectRaw(
@@ -55,7 +55,7 @@ class ManageTopicController extends Controller
             ]);
         }
     }
-    public function storeTopic(Request $request)
+    public function store(Request $request)
     {
         $broker_id = $request->broker_id;
         $machine_id = $request->machine_id;
@@ -97,7 +97,7 @@ class ManageTopicController extends Controller
             );
         }
     }
-    public function editTopic($id)
+    public function edit($id)
     {
         $topic = Topic::find($id);
         $topics = DB::table('tr_topic')
@@ -122,7 +122,7 @@ class ManageTopicController extends Controller
             );
         }
     }
-    public function updateTopic($id, Request $request)
+    public function update($id, Request $request)
     {
         $broker_id = $request->broker_id;
         $machine_id = $request->machine_id;
@@ -167,7 +167,7 @@ class ManageTopicController extends Controller
             );
         }
     }
-    public function destroyTopic($id)
+    public function destroy($id)
     {
         $topic = Topic::find($id);
         if ($topic) {

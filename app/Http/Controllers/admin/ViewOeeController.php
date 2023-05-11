@@ -27,7 +27,7 @@ class ViewOeeController extends Controller
                 ->join('mline', 'mline.id', '=', 'v_calc_poe.line_id')
                 ->orderBy('tanggal', 'ASC')
                 ->orderBy('shift_id', 'ASC')
-                ->orderBy('okp', 'ASC')
+                ->orderBy('txtbatchcode', 'ASC')
                 ->whereYear('tanggal', $request->input('year'))
                 ->get();
         } else {
@@ -35,7 +35,7 @@ class ViewOeeController extends Controller
                 ->join('mline', 'mline.id', '=', 'v_calc_poe.line_id')
                 ->orderBy('tanggal', 'ASC')
                 ->orderBy('shift_id', 'ASC')
-                ->orderBy('okp', 'ASC')
+                ->orderBy('txtbatchcode', 'ASC')
                 ->where('v_calc_poe.line_id', $request->input('line'))
                 ->whereYear('tanggal', $request->input('year'))
                 ->get();

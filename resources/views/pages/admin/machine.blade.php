@@ -132,7 +132,7 @@
             }
         });
         var daTable = $('#daTable').DataTable({
-            ajax: "{{ route('manage.machine.list') }}",
+            ajax: "{{ route('manage.machine.index') }}",
             processing: true,
             serverSide: true,
             columns: [{

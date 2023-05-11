@@ -12,33 +12,33 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageKpiController extends Controller
 {
-    public function getIndex()
+    public function index(Request $request)
     {
-        return view('pages.admin.kpi');
+        if ($request->wantsJson()) {
+            $data = Kpi::all();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn_detail =
+                        '<a href="'.route('manage.kpi.detail', $row->txtyear).'" class="btn btn-sm btn-square btn-primary"><i class="fas fa-pencil"></i></a>';
+                    $btn_edit =
+                        '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
+                        $row->id .
+                        ')"><i class="fas fa-edit"></i></a>';
+                    $btn_delete =
+                        '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
+                        $row->id .
+                        ')"><i class="fas fa-trash"></i></a>';
+                    $btn = '<div class="btn-group">'.$btn_detail.' '.$btn_edit . ' ' . $btn_delete.'</div>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        } else {
+            return view('pages.admin.kpi');
+        }
     }
-    public function getListKpi()
-    {
-        $data = Kpi::all();
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btn_detail =
-                    '<a href="'.route('manage.kpi.detail', $row->txtyear).'" class="btn btn-sm btn-square btn-primary"><i class="fas fa-pencil"></i></a>';
-                $btn_edit =
-                    '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
-                    $row->id .
-                    ')"><i class="fas fa-edit"></i></a>';
-                $btn_delete =
-                    '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
-                    $row->id .
-                    ')"><i class="fas fa-trash"></i></a>';
-                $btn = $btn_detail.' '.$btn_edit . ' ' . $btn_delete;
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
-    }
-    public function storeKpi(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -73,7 +73,7 @@ class ManageKpiController extends Controller
             }
         }
     }
-    public function editKpi($id)
+    public function edit($id)
     {
         $data = Kpi::findorfail($id);
         if ($data) {
@@ -94,7 +94,7 @@ class ManageKpiController extends Controller
             );
         }
     }
-    public function updateKpi($id, Request $request)
+    public function update($id, Request $request)
     {
         $input = $request->all();
         $kpi = Kpi::findorfail($id);
@@ -130,7 +130,7 @@ class ManageKpiController extends Controller
             );
         }
     }
-    public function destroyKpi($id)
+    public function destroy($id)
     {
         $kpi = Kpi::findOrfail($id);
         if ($kpi) {

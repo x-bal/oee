@@ -9,7 +9,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ManageShiftController extends Controller
 {
-    public function getIndex(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $data = Working::all();
@@ -33,7 +33,7 @@ class ManageShiftController extends Controller
             return view('pages.admin.shift');
         }
     }
-    public function storeShift(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $insert = Working::create($input);
@@ -55,7 +55,7 @@ class ManageShiftController extends Controller
             );
         }
     }
-    public function editShift($id)
+    public function edit($id)
     {
         $data = Working::findOrfail($id);
         if ($data) {
@@ -76,7 +76,7 @@ class ManageShiftController extends Controller
             );
         }
     }
-    public function updateShift($id, Request $request)
+    public function update($id, Request $request)
     {
         $data = Working::findOrfail($id);
         if ($data) {
@@ -98,7 +98,7 @@ class ManageShiftController extends Controller
             );
         }
     }
-    public function destroyShift($id)
+    public function destroy($id)
     {
         $data = Working::findOrfail($id);
         if ($data) {

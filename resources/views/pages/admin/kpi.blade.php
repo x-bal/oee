@@ -107,7 +107,7 @@
             }
         });
         var daTable = $('#daTable').DataTable({
-            ajax: "{{ route('manage.kpi.list') }}",
+            ajax: "{{ route('manage.kpi.index') }}",
 			processing: true,
         	serverSide: true,
             columns: [

@@ -9,7 +9,7 @@ use App\Models\ServerModel as Server;
 
 class ManageServerController extends Controller
 {
-    public function getServer(Request $request)
+    public function index(Request $request)
     {
         if ($request->wantsJson()) {
             $servers = Server::all();
@@ -44,7 +44,7 @@ class ManageServerController extends Controller
             return view('pages.admin.server');
         }
     }
-    public function storeServer(Request $request)
+    public function store(Request $request)
     {
         $input = $request->all();
         $create = Server::create($input);
@@ -66,7 +66,7 @@ class ManageServerController extends Controller
             );
         }
     }
-    public function editServer($id)
+    public function edit($id)
     {
         $server = Server::find($id);
         if ($server) {
@@ -150,7 +150,7 @@ class ManageServerController extends Controller
             200
         );
     }
-    public function updateServer($id, Request $request)
+    public function update($id, Request $request)
     {
         $input = $request->all();
         $server = Server::find($id);
@@ -173,7 +173,7 @@ class ManageServerController extends Controller
             );
         }
     }
-    public function destroyServer($id)
+    public function destroy($id)
     {
         $server = Server::find($id);
         if ($server) {

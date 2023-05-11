@@ -11,34 +11,34 @@ use App\Models\MenuModel as Menu;
 
 class ManageLevelController extends Controller
 {
-    public function getLevel()
+    public function index(Request $request)
     {
-        $menus = Menu::all();
-        return view('pages.admin.level', [
-            'menus' => $menus
-        ]);
+        if ($request->wantsJson()) {
+            $levels = Level::all();
+            return DataTables::of($levels)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn_edit =
+                        '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
+                        $row->id .
+                        ')"><i class="fas fa-edit"></i></a>';
+                    $btn_delete =
+                        '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
+                        $row->id .
+                        ')"><i class="fas fa-trash"></i></a>';
+                    $btn = $btn_edit . ' ' . $btn_delete;
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        } else {
+            $menus = Menu::all();
+            return view('pages.admin.level', [
+                'menus' => $menus
+            ]);
+        }
     }
-    public function getLevelList()
-    {
-        $levels = Level::all();
-        return DataTables::of($levels)
-            ->addIndexColumn()
-            ->addColumn('action', function ($row) {
-                $btn_edit =
-                    '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
-                    $row->id .
-                    ')"><i class="fas fa-edit"></i></a>';
-                $btn_delete =
-                    '<a type="button" class="btn btn-sm btn-square btn-danger" onclick="destroy(' .
-                    $row->id .
-                    ')"><i class="fas fa-trash"></i></a>';
-                $btn = $btn_edit . ' ' . $btn_delete;
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
-    }
-    public function storeLevel(Request $request)
+    public function store(Request $request)
     {
         $menu_id = $request->menu_id;
         $input = [
@@ -68,7 +68,7 @@ class ManageLevelController extends Controller
             ], 200);
         }
     }
-    public function editLevel($id)
+    public function edit($id)
     {
         $data = Level::findOrfail($id);
         $access = DB::table('level_access')->where('level_id', $id)->pluck('menu_id');
@@ -85,7 +85,7 @@ class ManageLevelController extends Controller
             ], 404);
         }
     }
-    public function updateLevel($id, Request $request)
+    public function update($id, Request $request)
     {
         $data = Level::findOrfail($id);
         $menu_id = $request->menu_id;
@@ -117,7 +117,7 @@ class ManageLevelController extends Controller
             ], 404);
         }
     }
-    public function destroyLevel($id)
+    public function destroy($id)
     {
         $data = Level::findOrfail($id);
         if ($data) {
