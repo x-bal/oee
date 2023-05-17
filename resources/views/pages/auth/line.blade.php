@@ -123,7 +123,7 @@
         <script>
             let year = "{{ empty(Request::input('year')) ? date('Y') : Request::input('year') }}";
             let month = "{{ empty(Request::input('month')) ? '' : Request::input('month') }}";
-
+            let oee = @json($actual_oee);
             function ajaxLink(link) {
                 let ajaxLink = link.replace(':year', year);
                 return ajaxLink;
@@ -146,7 +146,7 @@
                     data: {
                         labels: ['AR', 'PR', 'QR'],
                         datasets: [{
-                            data: [30, 30, 40],
+                            data: [oee.ar, oee.pr, oee.qr],
                             backgroundColor: ['#388E3C', '#3D5AFE', '#C70039'],
                             borderWidth: 2,
                             label: 'OEE'
@@ -176,7 +176,7 @@
                 prodByop.addColorStop(0, '#2596be');
                 prodByop.addColorStop(1, '#85eabd');
                 const labels = ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'];
-                const ur = [94, 90, 91];
+                const ur = [0, 0, (((oee.ar/100)*(oee.pr/100)*(oee.qr/100)*(oee.utilization/100))*100).toFixed(2)];
                 const data = {
                     labels: labels,
                     datasets: [{

@@ -8,124 +8,6 @@
     <link href="/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
     <link href="/assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
-
-@section('content')
-    <div class="d-flex align-items-center mb-3">
-        <div>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="javascript:;">Dashboard</a></li>
-                <li class="breadcrumb-item active">Manage Topic</li>
-            </ol>
-            <h1 class="page-header mb-0">Manage Topic</h1>
-        </div>
-        <div class="ms-auto">
-            <a type="button" class="btn btn-success btn-rounded px-4" onclick="create()"><i
-                    class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add New Topic</a>
-        </div>
-    </div>
-    <!-- BEGIN panel -->
-    <div class="panel panel-inverse">
-        <!-- BEGIN panel-heading -->
-        <div class="panel-heading">
-            <h4 class="panel-title">Data Topic</h4>
-            <div class="panel-heading-btn">
-                <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i
-                        class="fa fa-expand"></i></a>
-                <a type="button" onclick="reloadTable()" class="btn btn-xs btn-icon btn-success"
-                    data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
-                <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i
-                        class="fa fa-minus"></i></a>
-                <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i
-                        class="fa fa-times"></i></a>
-            </div>
-        </div>
-        <!-- END panel-heading -->
-        <!-- BEGIN panel-body -->
-        <div class="panel-body">
-            <div class="table-responsive">
-                <table id="daTable" class="table table-striped table-bordered align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>MACHINE</th>
-                            <th>BROKER</th>
-                            <th>TOPIC</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- END panel-body -->
-    </div>
-    <!-- END panel -->
-    <!-- #modal-dialog -->
-    <div class="modal fade" id="userModal" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-light">
-                    <h4 class="modal-title">Modal Dialog</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="post" data-parsley-validate="true">
-                        @csrf
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="Machine">Machine* :</label>
-                                <select name="machine_id" id="Machine" class="select2 form-control"
-                                    data-parsley-required="true">
-                                    <option value=""></option>
-                                    @foreach ($machines as $item)
-                                        <option value="{{ $item->id }}">{{ $item->txtlinename.' - '.$item->txtmachinename }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="Server">Server* :</label>
-                                <select name="broker_id" id="Server" class="select2 form-control"
-                                    data-parsley-required="true">
-                                    <option value=""></option>
-                                    @foreach ($brokers as $item)
-                                        <option value="{{ $item->id }}">{{ $item->txthost . ' - ' . $item->intport }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-primary btn-sm float-end mb-3" onclick="newEntry()">ADD
-                                FIELD</button>
-                        </div>
-                        <div class="mb-3">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>NAME</th>
-                                        <th>TOPIC</th>
-                                        <th>ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="entry">
-
-                                </tbody>
-                            </table>
-                        </div>
-                </div>
-                <div class="modal-footer">
-                    <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
-                    <button type="submit" class="btn btn-success">Action</button>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- End-Modal-Dialog -->
-@endsection
-
 @push('scripts')
     <script src="/assets/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="/assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
@@ -191,6 +73,7 @@
                 '<td>'+selectTopicName(index)+'</td>' +
                 '<td><input type="text" id="Topic' + index +
                 '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true"/></td>' +
+                '<td class="activity"><select id="Activity'+index+'" class="form-control" name="activity_id[]" readonly><option value="0">No Activity</option></select></td>' +
                 '<td>Unavailable</td>' +
                 '</tr>';
             wrapper.append(field);
@@ -204,6 +87,7 @@
                 '<td>'+selectTopicName(index)+'</td>' +
                 '<td><input type="text" id="Topic' + index +
                 '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true"/></td>' +
+                '<td class="activity"><select id="Activity'+index+'" class="form-control" name="activity_id[]" readonly><option value="0">No Activity</option></select></td>' +
                 '<td><button type="button" class="btn btn-sm btn-danger btn-delete">Delete</button></td>' +
                 '</tr>';
             wrapper.append(field);
@@ -220,9 +104,10 @@
                     '<td><input type="text" id="Topic' + (i + 1) +
                     '" name="txttopic[]" class="form-control topic" placeholder="TOPIC" data-parsley-required="true" value="' +
                     data[i].txttopic + '"/></td>' +
+                    '<td class="activity">Unavailable</td>' +
                     (index > 1 ?
                         '<td><button type="button" class="btn btn-sm btn-danger btn-delete">Delete</button></td>' :
-                        'Unavailable') +
+                        '<td>Unavailable</td>') +
                     '</tr>';
             })
             wrapper.append(entry);
@@ -236,19 +121,55 @@
         function selectTopicName(id, selected = false){
             let select = '';
             if (selected) {
-                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true">'+
+                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true" onchange="selectActivity(this)">'+
                         '<option value="COUNTING" '+((selected == 'COUNTING')?'selected':'')+'>COUNTING</option>'+
                         '<option value="REJECTOR" '+((selected == 'REJECTOR')?'selected':'')+'>REJECTOR</option>'+
                         '<option value="STATUS" '+((selected == 'STATUS')?'selected':'')+'>START/STOP</option>'+
+                        '<option value="ACTIVITY" '+((selected == 'ACTIVITY')?'selected':'')+'>ACTIVITY</option>'+
                     '</select>';
             } else {
-                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true">'+
+                select = '<select name="txtname[]" id="TopicName'+id+'" class="form-control" data-parsley-required="true" onchange="selectActivity(this)">'+
                         '<option value="COUNTING">COUNTING</option>'+
                         '<option value="REJECTOR">REJECTOR</option>'+
                         '<option value="STATUS">START/STOP</option>'+
+                        '<option value="ACTIVITY">ACTIVITY</option>'+
                     '</select>';
             }
             return select;
+        }
+        function selectActivity(that){
+            let type = $(that).val();
+            if (type == 'ACTIVITY') {
+                listActivity(that);
+            }
+        }
+        function listActivity(that){
+            let wrapper = $(that).closest('tr').find('td.activity');
+            let machine_id = $('.modal-body').find('select#Machine').val();
+            let machine_url = "{!! route('manage.machine.edit', ':id') !!}";
+            machine_url = machine_url.replace(':id', machine_id);
+            let line_id = '';
+            let opt = '';
+            $.get(machine_url, function(response){
+                line_id = response.machine.line_id;
+            }).then(() => {
+                let activity_url = "{{ route('manage.activity.line', ':id_line') }}";
+                activity_url = activity_url.replace(':id_line', line_id);
+                $.get(activity_url, function(response){
+                    wrapper.empty();
+                    let select = '<select id="Activity'+index+'" class="form-control" name="activity_id[]"></select>';
+                    $.each(response.activity, function(i, val){
+                        opt += '<option value="'+val.id+'">'+val.txtactivitycode+' - '+val.txtdescription+'</option>';
+                    })
+                    wrapper.append(select);
+                    wrapper.find('select').append(opt);
+                    wrapper.find('select').select2({
+                        dropdownParent: $('#userModal'),
+                        placeholder: "Select Activity",
+                        allowClear: true
+                    });
+                })
+            })
         }
         function create() {
             $('#userModal').modal('show');
@@ -392,3 +313,120 @@
         })
     </script>
 @endpush
+@section('content')
+    <div class="d-flex align-items-center mb-3">
+        <div>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:;">Dashboard</a></li>
+                <li class="breadcrumb-item active">Manage Topic</li>
+            </ol>
+            <h1 class="page-header mb-0">Manage Topic</h1>
+        </div>
+        <div class="ms-auto">
+            <a type="button" class="btn btn-success btn-rounded px-4" onclick="create()"><i
+                    class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add New Topic</a>
+        </div>
+    </div>
+    <!-- BEGIN panel -->
+    <div class="panel panel-inverse">
+        <!-- BEGIN panel-heading -->
+        <div class="panel-heading">
+            <h4 class="panel-title">Data Topic</h4>
+            <div class="panel-heading-btn">
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i
+                        class="fa fa-expand"></i></a>
+                <a type="button" onclick="reloadTable()" class="btn btn-xs btn-icon btn-success"
+                    data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-warning" data-toggle="panel-collapse"><i
+                        class="fa fa-minus"></i></a>
+                <a href="javascript:;" class="btn btn-xs btn-icon btn-danger" data-toggle="panel-remove"><i
+                        class="fa fa-times"></i></a>
+            </div>
+        </div>
+        <!-- END panel-heading -->
+        <!-- BEGIN panel-body -->
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table id="daTable" class="table table-striped table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>MACHINE</th>
+                            <th>BROKER</th>
+                            <th>TOPIC</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- END panel-body -->
+    </div>
+    <!-- END panel -->
+    <!-- #modal-dialog -->
+    <div class="modal fade" id="userModal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-light">
+                    <h4 class="modal-title">Modal Dialog</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="post" data-parsley-validate="true">
+                        @csrf
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Machine">Machine* :</label>
+                                <select name="machine_id" id="Machine" class="select2 form-control"
+                                    data-parsley-required="true">
+                                    <option value=""></option>
+                                    @foreach ($machines as $item)
+                                        <option value="{{ $item->id }}">{{ $item->txtlinename.' - '.$item->txtmachinename }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Server">Server* :</label>
+                                <select name="broker_id" id="Server" class="select2 form-control"
+                                    data-parsley-required="true">
+                                    <option value=""></option>
+                                    @foreach ($brokers as $item)
+                                        <option value="{{ $item->id }}">{{ $item->txthost . ' - ' . $item->intport }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary btn-sm float-end mb-3" onclick="newEntry()">ADD
+                                FIELD</button>
+                        </div>
+                        <div class="mb-3">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>NAME</th>
+                                        <th>TOPIC</th>
+                                        <th>ACTIVITY</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="entry">
+
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="javascript:;" class="btn btn-white" data-bs-dismiss="modal">Close</a>
+                    <button type="submit" class="btn btn-success">Action</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End-Modal-Dialog -->
+@endsection

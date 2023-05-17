@@ -14,9 +14,9 @@ class ManagePlanOrderController extends Controller
     public function index(Request $request)
     {
         if ($request->wantsJson()) {
-            $planorder = PlanOrder::select('mplanorder.*', 'mline.txtlinename', 'mproduct.txtartcode')
+            $planorder = PlanOrder::select('mplanorder.*', 'mline.txtlinename', 'tb_m_item_parts.part_name', 'tb_m_item_parts.part_number')
                 ->join('mline', 'mline.id', '=', 'mplanorder.line_id')
-                ->join('mproduct', 'mproduct.id', '=', 'mplanorder.product_id')
+                ->join('tb_m_item_parts', 'tb_m_item_parts.id', '=', 'mplanorder.item_part_id')
                 ->orderBy('id', 'DESC')
                 ->get();
             return DataTables::of($planorder)

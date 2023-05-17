@@ -129,7 +129,7 @@
             columns: [
                 {data: 'DT_RowIndex'},
                 {data: 'txtlinename'},
-                {data: 'txtartcode'},
+                {data: 'part_name'},
                 {data: 'txtbatchcode'},
                 {data: 'inttarget'},
                 {data: 'status'},

@@ -38,6 +38,7 @@ Route::group(['prefix' => 'admin'], function () {
         //Manage Activity Code
         Route::resource('activity', ManageActivityController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
         Route::get('activity/list/{param}', [ManageActivityController::class,'getListActivity'])->name('activity.list');
+        Route::get('activity/{id_line}/line', [ManageActivityController::class, 'getActivityByLine'])->name('activity.line');
 
         //Management Level and Access Menu
         Route::resource('level', ManageLevelController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);

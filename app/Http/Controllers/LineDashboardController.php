@@ -14,33 +14,39 @@ class LineDashboardController extends Controller
 {
     public function getIndex(Request $request)
     {
-        $view = Auth::check()?'pages.line-dashboard':'pages.auth.line';
-        $poe = DB::table('mkpi')->where('txtyear', (!empty($request->year)?$request->year:date('Y')))->first();
+        $view = Auth::check() ? 'pages.line-dashboard' : 'pages.auth.line';
+        $line = Auth::check() ? $request->segment(3) : $request->segment(2);
+        $poe = DB::table('mkpi')
+            ->where(
+                'txtyear',
+                !empty($request->year) ? $request->year : date('Y')
+            )
+            ->first();
         $oee = DB::table('tr_kpi')
-            ->selectRaw('
+            ->selectRaw(
+                '
                 IFNULL(CAST((SUM(ar)/COUNT(ar)) AS DECIMAL(10, 2)), 0) AS ar,
                 IFNULL(CAST((SUM(pr)/COUNT(pr)) AS DECIMAL(10, 2)), 0) AS pr,
                 IFNULL(CAST((SUM(qr)/COUNT(qr)) AS DECIMAL(10, 2)), 0) AS qr
-            ')
-            ->where('kpi_id', (!empty($poe)?$poe->id:0))
+            '
+            )
+            ->where('kpi_id', !empty($poe) ? $poe->id : 0)
             ->first();
-        $actual_oee = DB::table('v_calc_poe')
-            ->selectRaw('
-                id, YEAR(tanggal), SUM(total_output),
-                IFNULL(CAST((SUM(operating_time)/SUM(loading_time))*100 AS DECIMAL(10, 2)), 0) AS ar,
-                IFNULL(CAST((SUM(net_optime)/SUM(operating_time))*100 AS DECIMAL(10, 2)), 0) AS pr,
-                IFNULL(CAST((SUM(value_adding)/SUM(net_optime))*100 AS DECIMAL(10, 2)), 0) AS qr
-            ')
-            ->whereYear('tanggal', (!empty($request->year)?$request->year:date('Y')))
-            ->groupBy(DB::raw('YEAR(tanggal)'))
+        $actual_oee = DB::table('v_shift_oee')
+            ->selectRaw(
+                '
+                id, avaibility_rate AS ar, performance_rate AS pr, quality_rate AS qr, utilization
+            '
+            )
+            ->where('line_id', $line)
             ->first();
         $years = KPI::groupBy('txtyear')->get();
         return view($view, [
-            'target_poe' => (!empty($poe)?$poe->poe:0),
+            'target_poe' => !empty($poe) ? $poe->poe : 0,
             'target_oee' => $oee,
             'actual_oee' => $actual_oee,
             'years' => $years,
-            'lines' => Line::all()
+            'lines' => Line::all(),
         ]);
     }
 }

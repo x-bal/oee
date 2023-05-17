@@ -61,6 +61,7 @@ class ManageTopicController extends Controller
         $machine_id = $request->machine_id;
         $topicname = $request->txtname;
         $topic = $request->txttopic;
+        $activity = $request->activity_id;
         $create = Topic::create([
             'broker_id' => $broker_id,
             'machine_id' => $machine_id,
@@ -75,6 +76,7 @@ class ManageTopicController extends Controller
                     'topic_id' => $create->id,
                     'txtname' => $topicname[$key],
                     'txttopic' => $topic[$key],
+                    'activity_id' => $activity[$key]
                 ];
             }
             $insert = DB::table('tr_topic')->insert($result);
@@ -128,6 +130,7 @@ class ManageTopicController extends Controller
         $machine_id = $request->machine_id;
         $topicname = $request->txtname;
         $txttopic = $request->txttopic;
+        $activity = $request->activity_id;
         $data = [
             'broker_id' => $broker_id,
             'machine_id' => $machine_id,
@@ -144,6 +147,7 @@ class ManageTopicController extends Controller
                     'topic_id' => $id,
                     'txtname' => $topicname[$key],
                     'txttopic' => $txttopic[$key],
+                    'activity_id' => $activity[$key]
                 ];
             }
             DB::table('tr_topic')

@@ -189,4 +189,20 @@ class ManageActivityController extends Controller
             );
         }
     }
+    public function getActivityByLine($line_id)
+    {
+        $data = Activity::where('line_id', $line_id)
+            ->get();
+        if ($data) {
+            return response()->json([
+                'status' => 'success',
+                'activity' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Activity not found'
+            ], 404);
+        }
+    }
 }
