@@ -14,6 +14,7 @@ use App\Http\Controllers\adminCg\OeeController as adminCgOee;
 use App\Http\Controllers\adminCg\OeeDrierController as adminCgOeeDrier;
 use App\Http\Controllers\adminCg\ViewOeeController as adminCgViewOee;
 use App\Http\Controllers\adminCg\ViewDowntimeController as adminCgDowntime;
+use App\Http\Controllers\DetailReportContoller;
 use App\Http\Controllers\leaderCg\OeeController as leaderCgOee;
 use App\Http\Controllers\leaderCg\OeeDrierController as leaderCgOeeDrier;
 use App\Http\Controllers\leaderCg\ViewOeeController as leaderCgViewOee;
@@ -399,4 +400,5 @@ Route::group(['middleware' => 'auth'], function () {
             'input.opr.index'
         );
     });
+    Route::get('/detailreport/production', [DetailReportContoller::class, 'production'])->name('detail-report.production');
 });

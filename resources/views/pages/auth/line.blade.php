@@ -141,12 +141,12 @@
             var handleOverallChart = function() {
                 var ctx = document.getElementById('overall-chart').getContext('2d');
                 new Chart(ctx, {
-                    type: 'pie',
+                    type: 'doughnut',
                     plugins: [ChartDataLabels],
                     data: {
                         labels: ['AR', 'PR', 'QR'],
                         datasets: [{
-                            data: [oee.ar, oee.pr, oee.qr],
+                            data: oee?[oee.ar, oee.pr, oee.qr]:[90,85,92],
                             backgroundColor: ['#388E3C', '#3D5AFE', '#C70039'],
                             borderWidth: 2,
                             label: 'OEE'
@@ -176,7 +176,7 @@
                 prodByop.addColorStop(0, '#2596be');
                 prodByop.addColorStop(1, '#85eabd');
                 const labels = ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'];
-                const ur = [0, 0, (((oee.ar/100)*(oee.pr/100)*(oee.qr/100)*(oee.utilization/100))*100).toFixed(2)];
+                const ur = oee?[0, 0, (((oee.ar/100)*(oee.pr/100)*(oee.qr/100)*(oee.utilization/100))*100).toFixed(2)]:[0,0,0];
                 const data = {
                     labels: labels,
                     datasets: [{

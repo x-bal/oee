@@ -2,14 +2,13 @@
 	$appSidebarClass = (!empty($appSidebarTransparent)) ? 'app-sidebar-transparent' : '';
 @endphp
 <!-- BEGIN #sidebar -->
-<div id="sidebar" class="app-sidebar app-sidebar-transparent">
+<div id="sidebar" class="app-sidebar">
 	<!-- BEGIN scrollbar -->
 	<div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
 		<div class="menu">
 			@if (!$appSidebarSearch)
 			<div class="menu-profile">
 				<a href="javascript:;" class="menu-profile-link" data-toggle="app-sidebar-profile" data-target="#appSidebarProfileMenu">
-					<div class="menu-profile-cover with-shadow"></div>
 					<div class="menu-profile-image">
 						<img src="{{ asset('/assets/img/user/'. Auth::user()->txtphoto) }}" alt="" />
 					</div>
@@ -18,31 +17,9 @@
 							<div class="flex-grow-1">
 								{{ Auth::user()->txtname }}
 							</div>
-							<div class="menu-caret ms-auto"></div>
 						</div>
 					</div>
 				</a>
-			</div>
-			<div id="appSidebarProfileMenu" class="collapse">
-				<div class="menu-item pt-5px">
-					<a href="javascript:;" class="menu-link">
-						<div class="menu-icon"><i class="fa fa-cog"></i></div>
-						<div class="menu-text">Settings</div>
-					</a>
-				</div>
-				<div class="menu-item">
-					<a href="javascript:;" class="menu-link">
-						<div class="menu-icon"><i class="fa fa-pencil-alt"></i></div>
-						<div class="menu-text"> Send Feedback</div>
-					</a>
-				</div>
-				<div class="menu-item pb-5px">
-					<a href="javascript:;" class="menu-link">
-						<div class="menu-icon"><i class="fa fa-question-circle"></i></div>
-						<div class="menu-text"> Helps</div>
-					</a>
-				</div>
-				<div class="menu-divider m-0"></div>
 			</div>
 			@endif
 

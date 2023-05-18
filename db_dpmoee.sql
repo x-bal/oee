@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 17, 2023 at 12:31 AM
+-- Generation Time: May 18, 2023 at 11:57 PM
 -- Server version: 5.7.33
 -- PHP Version: 7.4.19
 
@@ -265,21 +265,22 @@ INSERT INTO `level_access` (`level_id`, `menu_id`, `created_at`, `updated_at`) V
 (16, 23, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
 (16, 24, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
 (16, 26, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
-(1, 1, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 2, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 3, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 4, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 5, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 6, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 7, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 8, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 9, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 12, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 13, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 14, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 17, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(1, 28, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
-(17, 1, '2023-01-11 08:08:47', '2023-01-11 08:08:47');
+(17, 1, '2023-01-11 08:08:47', '2023-01-11 08:08:47'),
+(1, 1, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 2, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 3, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 4, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 5, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 6, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 7, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 8, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 9, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 12, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 13, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 14, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 17, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 28, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
+(1, 29, '2023-05-18 11:55:20', '2023-05-18 11:55:20');
 
 -- --------------------------------------------------------
 
@@ -1837,7 +1838,8 @@ INSERT INTO `menu` (`id`, `txticon`, `txttitle`, `txturl`, `txtroute`, `created_
 (25, 'ion-md-alarm bg-pink', 'Downtime Analysis', '/leader/viewdowntime', 'leader.view.downtime', '2022-10-24 00:22:44', '2022-10-24 00:22:44'),
 (26, 'ion-md-clipboard bg-gradient-purple', 'Input OEE Drier', '/leader-cg/month-drier', 'leader-cg.drier.month', '2022-10-24 07:07:41', '2022-10-24 07:07:41'),
 (27, 'ion-md-clipboard bg-gradient-purple', 'Input OEE Drier', '/admin-cg/month-drier', 'admin-cg.drier.month', '2022-10-24 14:42:02', '2022-10-24 14:42:02'),
-(28, 'ion-md-sync bg-gradient-green', 'Settings', 'Javascript:;', NULL, '2022-10-29 06:50:45', '2022-10-29 06:51:21');
+(28, 'ion-md-sync bg-gradient-green', 'Settings', 'Javascript:;', NULL, '2022-10-29 06:50:45', '2022-10-29 06:51:21'),
+(29, 'ion-ios-funnel bg-gradient-blue', 'Detail Report', 'javascript:;', NULL, '2023-05-18 11:47:20', '2023-05-18 11:47:20');
 
 -- --------------------------------------------------------
 
@@ -4514,7 +4516,8 @@ INSERT INTO `submenu` (`id`, `menu_id`, `txturl`, `txttitle`, `txtroute`, `txtic
 (12, 28, '/admin/server', 'Server MQTT', 'manage.server.index', 'fas fa-server', '2022-10-29 06:52:52', '2022-10-29 07:19:07'),
 (13, 28, '/admin/topic', 'Manage Topic', 'manage.topic.index', 'fas fa-key', '2022-10-29 07:02:47', '2022-10-29 07:19:17'),
 (14, 28, '/admin/topic-results', 'Topic Results', 'view.topic.result', 'fas fa-poll-h', '2022-11-01 18:53:04', '2022-11-01 18:53:04'),
-(15, 4, '/admin/assign/operator', 'Assign Operator', 'assign.operator.index', 'fas fa-calendar', '2022-11-15 23:38:28', '2022-12-28 00:58:13');
+(15, 4, '/admin/assign/operator', 'Assign Operator', 'assign.operator.index', 'fas fa-calendar', '2022-11-15 23:38:28', '2022-12-28 00:58:13'),
+(16, 29, '/detailreport/production', 'Production', 'detail-report.production', 'fas fa-window-maximize', '2023-05-18 11:50:45', '2023-05-18 11:50:45');
 
 -- --------------------------------------------------------
 
@@ -7426,7 +7429,7 @@ ALTER TABLE `mdailyactivities`
 -- AUTO_INCREMENT for table `menu`
 --
 ALTER TABLE `menu`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -7468,7 +7471,7 @@ ALTER TABLE `moee`
 -- AUTO_INCREMENT for table `mplanorder`
 --
 ALTER TABLE `mplanorder`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `mproduct`
@@ -7528,7 +7531,7 @@ ALTER TABLE `product`
 -- AUTO_INCREMENT for table `submenu`
 --
 ALTER TABLE `submenu`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_breakdown`
