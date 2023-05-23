@@ -5,7 +5,9 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\WorkingTimeModel as Working;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+use PhpMqtt\Client\Facades\MQTT;
 
 class ManageShiftController extends Controller
 {
@@ -118,6 +120,18 @@ class ManageShiftController extends Controller
                 ],
                 404
             );
+        }
+    }
+
+    public function getResetCount()
+    {
+        $tmstart = [];
+        $data = Working::selectRaw("LEFT(`tmstart`, 5) AS start")->get();
+        foreach ($data as $key => $value) {
+            $tmstart[] = $value->start;
+        }
+        if (in_array(date('H:i'), $tmstart)) {
+            MQTT::publish('topic/reset/counting', 'reset');
         }
     }
 }

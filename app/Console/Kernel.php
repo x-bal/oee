@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ResetCount;
+use App\Http\Controllers\admin\ManageShiftController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,9 +15,14 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
+    protected $commands = [
+        Commands\ResetCount::class,
+    ];
+
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->call('App\Http\Controllers\admin\ManageShiftController@getResetCount')->everyMinute();
     }
 
     /**
