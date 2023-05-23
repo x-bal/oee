@@ -45,7 +45,7 @@ Route::group(['prefix' => 'admin'], function () {
 
         //Manage Shift
         Route::resource('shift', ManageShiftController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);
-        Route::get('shift/reset', [ManageShiftController::class, 'getResetCount'])->name('manage.shift.reset');
+        Route::get('shift/reset', [ManageShiftController::class, 'getResetCount'])->name('shift.reset');
 
         //Manage product
         Route::resource('product', ManageProductController::class)->only(['index', 'store', 'edit', 'update', 'destroy']);

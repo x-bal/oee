@@ -191,6 +191,19 @@
                 }
             });
         }
+        function getActivity(that){
+            let id_line = $(that).val();
+            let getUrl = "{{ route('manage.activity.line', ':id_line') }}";
+            getUrl = getUrl.replace(":id_line", id_line);
+            let wrapper = $('select#ActivityID');
+            let opt = '';
+            $.get(getUrl, function(response){
+                $.each(response.activity, function(i, val){
+                    opt += '<option value="'+val.id+'">'+val.txtdescription+'</option>';
+                })
+                wrapper.append(opt);
+            })
+        }
         function gritter(title, text, status){
             $.gritter.add({
                 title: title,
@@ -200,6 +213,10 @@
             });
         }
         $(document).ready(function(){
+            $('#userModal').on('hide.bs.modal', function(){
+                let wrapper = $('select#ActivityID');
+                wrapper.find('option').remove();
+            })
             $('select[name="line_id"]').select2({
                 dropdownParent: $('#userModal'),
                 placeholder: "Select Line",
@@ -276,11 +293,11 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Line Name</th>
-                            <th>Description</th>
-                            <th>Start</th>
-                            <th>Finish</th>
-                            <th>Aksi</th>
+                            <th>LINE NAME</th>
+                            <th>DESCRIPTION</th>
+                            <th>START</th>
+                            <th>FINISH</th>
+                            <th>AKSI</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -303,7 +320,7 @@
             <form action="" method="post" data-parsley-validate="true" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="Line">Line* :</label>
-                    <select name="line_id" id="Line" class="select2 form-control" data-parsley-required="true">
+                    <select name="line_id" id="Line" class="select2 form-control" data-parsley-required="true" onchange="getActivity(this)">
                         <option value=""></option>
                         @foreach ($lines as $item)
                             <option value="{{ $item->id }}">{{ $item->txtlinename }}</option>
@@ -318,7 +335,11 @@
                 </div>
                 <div class="mb-3">
                     <label for="Start">Start Time :</label>
-                    <input type="text" id="Start" name="tmstart" class="form-control" placeholder="Start Time"/>
+                    <input type="text" id="Start" name="tmstart" class="form-control" placeholder="Start Time" data-parsley-required="true"/>
+                </div>
+                <div class="mb-3">
+                    <label for="Finish">Finish Time :</label>
+                    <input type="text" id="Finish" name="tmfinish" class="form-control" placeholder="Finish Time" data-parsley-required="true"/>
                 </div>
             </div>
             <div class="modal-footer">
