@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 18, 2023 at 11:57 PM
--- Server version: 5.7.33
--- PHP Version: 7.4.19
+-- Generation Time: May 24, 2023 at 09:31 AM
+-- Server version: 8.0.30
+-- PHP Version: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,28 +35,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_durasi` (IN `line` BIGINT, I
 			AND is_completed IS NULL 
 			ORDER BY is_released ASC 
 			LIMIT 1;
-		SELECT `finish` INTO last_start FROM oee WHERE line_id = line ORDER BY id DESC LIMIT 1;
+		SELECT `finish` INTO last_start FROM moee WHERE line_id = line ORDER BY id DESC LIMIT 1;
 		SELECT `id` into act_id from mactivitycode
 			WHERE line_id = line
 			and txtcategory = 'pr'
 			limit 1;
 		if(last_start is null OR last_start = '') then
 			IF(new_status = 1) THEN
-				INSERT INTO oee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
+				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
 				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'), 
 				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, act_id);	
 			ELSE
-				INSERT INTO oee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id) VALUES
+				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id) VALUES
 				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'), 
-				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp);	
+				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, 14);	
 			END IF;		
 		else
 			IF(new_status = 1) THEN
-				INSERT INTO oee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
+				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
 				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), last_start, ADDTIME(last_start, 1), 1, okp, act_id);
 			ELSE
-				INSERT INTO oee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id) VALUES
-				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), last_start, ADDTIME(last_start, 1), 1, okp);
+				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id) VALUES
+				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), last_start, ADDTIME(last_start, 1), 1, okp, 14);
 			END IF;
 		end if;
 	END$$
@@ -81,15 +81,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `oee_shifts` (OUT `shift_id` BIGINT)
 	END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_counting` (IN `line` BIGINT, IN `counting` INT)   BEGIN
-		UPDATE oee SET finish_good = (finish_good+counting) WHERE line_id = line ORDER BY id DESC LIMIT 1;
+		UPDATE moee SET finish_good = (output+counting) WHERE line_id = line ORDER BY id DESC LIMIT 1;
 	END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_durasi` (IN `line` BIGINT)   BEGIN
-	UPDATE oee SET lamakejadian = (lamakejadian+1), finish = addtime(finish, 1) WHERE line_id = line ORDER BY id DESC LIMIT 1;
+	UPDATE moee SET lamakejadian = (lamakejadian+1), finish = addtime(finish, 1) WHERE line_id = line ORDER BY id DESC LIMIT 1;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_reject` (IN `line` BIGINT, IN `counting` INT)   BEGIN
-		UPDATE oee SET reject = (reject+counting) WHERE line_id = line ORDER BY id DESC LIMIT 1;
+		UPDATE moee SET reject = (reject+counting) WHERE line_id = line ORDER BY id DESC LIMIT 1;
 	END$$
 
 DELIMITER ;
@@ -101,12 +101,12 @@ DELIMITER ;
 --
 
 CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -136,13 +136,13 @@ INSERT INTO `failed_jobs` (`id`, `uuid`, `connection`, `queue`, `payload`, `exce
 --
 
 CREATE TABLE `jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `attempts` tinyint(3) UNSIGNED NOT NULL,
-  `reserved_at` int(10) UNSIGNED DEFAULT NULL,
-  `available_at` int(10) UNSIGNED NOT NULL,
-  `created_at` int(10) UNSIGNED NOT NULL
+  `id` bigint UNSIGNED NOT NULL,
+  `queue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint UNSIGNED NOT NULL,
+  `reserved_at` int UNSIGNED DEFAULT NULL,
+  `available_at` int UNSIGNED NOT NULL,
+  `created_at` int UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -225,8 +225,8 @@ INSERT INTO `jobs` (`id`, `queue`, `payload`, `attempts`, `reserved_at`, `availa
 --
 
 CREATE TABLE `level_access` (
-  `level_id` bigint(20) UNSIGNED NOT NULL,
-  `menu_id` bigint(20) UNSIGNED NOT NULL,
+  `level_id` bigint UNSIGNED NOT NULL,
+  `menu_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -265,22 +265,21 @@ INSERT INTO `level_access` (`level_id`, `menu_id`, `created_at`, `updated_at`) V
 (16, 23, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
 (16, 24, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
 (16, 26, '2022-10-24 07:08:39', '2022-10-24 07:08:39'),
-(17, 1, '2023-01-11 08:08:47', '2023-01-11 08:08:47'),
-(1, 1, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 2, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 3, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 4, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 5, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 6, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 7, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 8, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 9, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 12, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 13, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 14, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 17, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 28, '2023-05-18 11:55:20', '2023-05-18 11:55:20'),
-(1, 29, '2023-05-18 11:55:20', '2023-05-18 11:55:20');
+(1, 1, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 2, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 3, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 4, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 5, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 6, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 7, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 8, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 9, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 12, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 13, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 14, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 17, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(1, 28, '2022-10-29 07:07:32', '2022-10-29 07:07:32'),
+(17, 1, '2023-01-11 08:08:47', '2023-01-11 08:08:47');
 
 -- --------------------------------------------------------
 
@@ -289,8 +288,8 @@ INSERT INTO `level_access` (`level_id`, `menu_id`, `created_at`, `updated_at`) V
 --
 
 CREATE TABLE `line_users` (
-  `user_id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -309,10 +308,10 @@ INSERT INTO `line_users` (`user_id`, `line_id`, `created_at`, `updated_at`) VALU
 --
 
 CREATE TABLE `loghistory` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `machine_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `machine_id` bigint UNSIGNED NOT NULL,
   `name` varchar(64) NOT NULL,
-  `status` tinyint(4) NOT NULL,
+  `status` tinyint NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -777,7 +776,49 @@ INSERT INTO `loghistory` (`id`, `machine_id`, `name`, `status`, `created_at`, `u
 (453, 7, 'STATUS', 0, '2023-01-26 03:20:00', '2023-01-26 03:20:00'),
 (454, 7, 'STATUS', 0, '2023-01-26 03:20:00', '2023-01-26 03:20:00'),
 (455, 7, 'STATUS', 0, '2023-01-26 03:20:00', '2023-01-26 03:20:00'),
-(456, 7, 'STATUS', 0, '2023-01-26 03:20:00', '2023-01-26 03:20:00');
+(456, 7, 'STATUS', 0, '2023-01-26 03:20:00', '2023-01-26 03:20:00'),
+(457, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(458, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(459, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(460, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(461, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(462, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(463, 7, 'STATUS', 0, '2023-05-23 01:19:20', '2023-05-23 01:19:20'),
+(464, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(465, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(466, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(467, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(468, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(469, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(470, 7, 'STATUS', 0, '2023-05-23 01:19:25', '2023-05-23 01:19:25'),
+(471, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(472, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(473, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(474, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(475, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(476, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(477, 7, 'STATUS', 0, '2023-05-23 01:19:30', '2023-05-23 01:19:30'),
+(478, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(479, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(480, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(481, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(482, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(483, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(484, 7, 'STATUS', 0, '2023-05-23 01:19:35', '2023-05-23 01:19:35'),
+(485, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(486, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(487, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(488, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(489, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(490, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(491, 7, 'STATUS', 0, '2023-05-23 01:19:40', '2023-05-23 01:19:40'),
+(492, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(493, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(494, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(495, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(496, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(497, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45'),
+(498, 7, 'STATUS', 0, '2023-05-23 01:19:45', '2023-05-23 01:19:45');
 
 --
 -- Triggers `loghistory`
@@ -810,8 +851,8 @@ DELIMITER ;
 --
 
 CREATE TABLE `mactivitycode` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
   `txtactivitycode` char(16) NOT NULL,
   `txtcategory` char(100) NOT NULL,
   `txtactivityname` varchar(128) NOT NULL,
@@ -1712,9 +1753,9 @@ INSERT INTO `mactivitycode` (`id`, `line_id`, `txtactivitycode`, `txtcategory`, 
 --
 
 CREATE TABLE `massign_line` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1733,14 +1774,14 @@ INSERT INTO `massign_line` (`id`, `line_id`, `user_id`, `created_at`, `updated_a
 --
 
 CREATE TABLE `mbroker` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txthost` varchar(64) NOT NULL,
-  `intport` int(11) NOT NULL,
-  `intwsport` int(11) DEFAULT NULL,
+  `intport` int NOT NULL,
+  `intwsport` int DEFAULT NULL,
   `txtusername` varchar(128) DEFAULT NULL,
   `txtpassword` varchar(128) DEFAULT NULL,
   `txtclientid` varchar(128) NOT NULL,
-  `intactive` tinyint(4) DEFAULT '0',
+  `intactive` tinyint DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1761,9 +1802,9 @@ INSERT INTO `mbroker` (`id`, `txthost`, `intport`, `intwsport`, `txtusername`, `
 --
 
 CREATE TABLE `mconfig` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `intworkingtime` int(11) NOT NULL,
-  `intactive` tinyint(4) DEFAULT '0',
+  `id` int UNSIGNED NOT NULL,
+  `intworkingtime` int NOT NULL,
+  `intactive` tinyint DEFAULT '0',
   `txtcreatedby` varchar(128) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `txtupdatedby` varchar(128) DEFAULT NULL,
@@ -1784,8 +1825,11 @@ INSERT INTO `mconfig` (`id`, `intworkingtime`, `intactive`, `txtcreatedby`, `cre
 --
 
 CREATE TABLE `mdailyactivities` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
+  `activity_id` bigint UNSIGNED NOT NULL,
+  `tmstart` time NOT NULL,
+  `tmfinish` time NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1797,7 +1841,7 @@ CREATE TABLE `mdailyactivities` (
 --
 
 CREATE TABLE `menu` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txticon` varchar(64) NOT NULL,
   `txttitle` varchar(64) NOT NULL,
   `txturl` varchar(64) DEFAULT NULL,
@@ -1838,8 +1882,7 @@ INSERT INTO `menu` (`id`, `txticon`, `txttitle`, `txturl`, `txtroute`, `created_
 (25, 'ion-md-alarm bg-pink', 'Downtime Analysis', '/leader/viewdowntime', 'leader.view.downtime', '2022-10-24 00:22:44', '2022-10-24 00:22:44'),
 (26, 'ion-md-clipboard bg-gradient-purple', 'Input OEE Drier', '/leader-cg/month-drier', 'leader-cg.drier.month', '2022-10-24 07:07:41', '2022-10-24 07:07:41'),
 (27, 'ion-md-clipboard bg-gradient-purple', 'Input OEE Drier', '/admin-cg/month-drier', 'admin-cg.drier.month', '2022-10-24 14:42:02', '2022-10-24 14:42:02'),
-(28, 'ion-md-sync bg-gradient-green', 'Settings', 'Javascript:;', NULL, '2022-10-29 06:50:45', '2022-10-29 06:51:21'),
-(29, 'ion-ios-funnel bg-gradient-blue', 'Detail Report', 'javascript:;', NULL, '2023-05-18 11:47:20', '2023-05-18 11:47:20');
+(28, 'ion-md-sync bg-gradient-green', 'Settings', 'Javascript:;', NULL, '2022-10-29 06:50:45', '2022-10-29 06:51:21');
 
 -- --------------------------------------------------------
 
@@ -1848,9 +1891,9 @@ INSERT INTO `menu` (`id`, `txticon`, `txttitle`, `txturl`, `txtroute`, `created_
 --
 
 CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL
+  `id` int UNSIGNED NOT NULL,
+  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -1872,7 +1915,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 --
 
 CREATE TABLE `mkpi` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txtyear` char(6) NOT NULL,
   `poe` float NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1894,9 +1937,9 @@ INSERT INTO `mkpi` (`id`, `txtyear`, `poe`, `created_at`, `updated_at`) VALUES
 --
 
 CREATE TABLE `mlevels` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txtlevelname` varchar(32) NOT NULL,
-  `intsessline` tinyint(4) DEFAULT '0',
+  `intsessline` tinyint DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1927,7 +1970,7 @@ INSERT INTO `mlevels` (`id`, `txtlevelname`, `intsessline`, `created_at`, `updat
 --
 
 CREATE TABLE `mline` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txtlinename` varchar(128) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -1965,11 +2008,11 @@ DELIMITER ;
 --
 
 CREATE TABLE `mmachines` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
   `txtmachinename` varchar(128) NOT NULL,
   `txtpicture` varchar(128) DEFAULT 'default.png',
-  `intbottleneck` tinyint(4) DEFAULT '0',
+  `intbottleneck` tinyint DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1990,32 +2033,32 @@ INSERT INTO `mmachines` (`id`, `line_id`, `txtmachinename`, `txtpicture`, `intbo
 --
 
 CREATE TABLE `moee` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` int(11) DEFAULT NULL,
-  `activity_id` int(11) DEFAULT NULL,
-  `shift_id` int(11) DEFAULT NULL,
-  `planorder_id` int(11) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` int DEFAULT NULL,
+  `activity_id` int DEFAULT NULL,
+  `shift_id` int DEFAULT NULL,
+  `planorder_id` int DEFAULT NULL,
   `tanggal` date DEFAULT NULL,
   `start` time DEFAULT NULL,
   `finish` time DEFAULT NULL,
-  `lamakejadian` int(11) DEFAULT '0',
-  `working_time` int(11) DEFAULT '0',
+  `lamakejadian` int DEFAULT '0',
+  `working_time` int DEFAULT '0',
   `remark` varchar(256) DEFAULT NULL,
   `operator` varchar(128) DEFAULT NULL,
-  `output` int(11) DEFAULT '0',
-  `rework` int(11) DEFAULT '0',
+  `output` int DEFAULT '0',
+  `rework` int DEFAULT '0',
   `category_rework` varchar(64) DEFAULT NULL,
-  `reject` int(11) DEFAULT '0',
+  `reject` int DEFAULT '0',
   `category_reject` varchar(64) DEFAULT NULL,
-  `qc_sample` int(11) DEFAULT '0',
-  `waiting_tech` int(11) DEFAULT '0',
-  `repair_problem` int(11) DEFAULT '0',
-  `trial_time` int(11) DEFAULT '0',
-  `tech_name` int(11) DEFAULT NULL,
+  `qc_sample` int DEFAULT '0',
+  `waiting_tech` int DEFAULT '0',
+  `repair_problem` int DEFAULT '0',
+  `trial_time` int DEFAULT '0',
+  `tech_name` int DEFAULT NULL,
   `bas_com` varchar(64) DEFAULT NULL,
   `category_br` varchar(64) DEFAULT NULL,
   `category_ampm` varchar(64) DEFAULT NULL,
-  `jumlah_manpower` int(11) DEFAULT '0'
+  `jumlah_manpower` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -2033,11 +2076,11 @@ INSERT INTO `moee` (`id`, `line_id`, `activity_id`, `shift_id`, `planorder_id`, 
 --
 
 CREATE TABLE `mplanorder` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
-  `item_part_id` int(11) NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
+  `item_part_id` int NOT NULL,
   `txtbatchcode` varchar(64) DEFAULT NULL,
-  `inttarget` int(11) NOT NULL,
+  `inttarget` int NOT NULL,
   `is_released` timestamp NULL DEFAULT NULL,
   `is_completed` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2074,16 +2117,16 @@ DELIMITER ;
 --
 
 CREATE TABLE `mproduct` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
   `txtartcode` varchar(64) NOT NULL,
   `txtproductname` varchar(128) NOT NULL,
   `txtproductcode` varchar(32) DEFAULT NULL COMMENT '/*OPTIONAL',
   `txtlinecode` varchar(32) DEFAULT NULL,
   `floatbatchsize` float DEFAULT NULL,
   `floatstdspeed` float DEFAULT NULL COMMENT 'CYCLE TIME PCS/MENIT',
-  `intpcskarton` int(11) DEFAULT NULL,
-  `intnetfill` int(11) DEFAULT NULL,
+  `intpcskarton` int DEFAULT NULL,
+  `intnetfill` int DEFAULT NULL,
   `txtpartimage` varchar(128) DEFAULT 'default.png' COMMENT 'PRODUCT IMAGE UPLOAD',
   `txtcategory` varchar(50) DEFAULT NULL,
   `txtfocuscategory` varchar(50) DEFAULT NULL,
@@ -2105,9 +2148,9 @@ INSERT INTO `mproduct` (`id`, `line_id`, `txtartcode`, `txtproductname`, `txtpro
 --
 
 CREATE TABLE `mtopic` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `broker_id` bigint(20) UNSIGNED NOT NULL,
-  `machine_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `broker_id` bigint UNSIGNED NOT NULL,
+  `machine_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2129,18 +2172,18 @@ INSERT INTO `mtopic` (`id`, `broker_id`, `machine_id`, `created_at`, `updated_at
 --
 
 CREATE TABLE `musers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL DEFAULT '0',
-  `txtname` varchar(128) CHARACTER SET latin1 NOT NULL,
-  `txtusername` varchar(128) CHARACTER SET latin1 NOT NULL,
-  `level_id` bigint(20) UNSIGNED NOT NULL,
-  `password` varchar(128) CHARACTER SET latin1 NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL DEFAULT '0',
+  `txtname` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `txtusername` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
+  `level_id` bigint UNSIGNED NOT NULL,
+  `password` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL,
   `txtqrcode` varchar(128) DEFAULT NULL,
   `txtinitial` char(6) DEFAULT NULL,
-  `txtphoto` varchar(128) CHARACTER SET latin1 DEFAULT 'default.jpg',
+  `txtphoto` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'default.jpg',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `musers`
@@ -2158,11 +2201,11 @@ INSERT INTO `musers` (`id`, `line_id`, `txtname`, `txtusername`, `level_id`, `pa
 --
 
 CREATE TABLE `mworkingtime` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
   `txtshiftname` varchar(32) NOT NULL,
   `tmstart` time NOT NULL,
   `tmfinish` time NOT NULL,
-  `intinterval` tinyint(4) DEFAULT '0',
+  `intinterval` tinyint DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -2173,7 +2216,7 @@ CREATE TABLE `mworkingtime` (
 
 INSERT INTO `mworkingtime` (`id`, `txtshiftname`, `tmstart`, `tmfinish`, `intinterval`, `created_at`, `updated_at`) VALUES
 (1, 'SHIFT 1', '07:00:00', '15:00:00', 0, '2022-11-22 14:21:54', '2022-11-22 14:32:48'),
-(2, 'SHIFT 2', '15:00:00', '22:00:00', 0, '2022-11-22 14:22:15', '2022-11-22 14:32:55'),
+(2, 'SHIFT 2', '15:00:00', '22:00:00', 0, '2022-11-22 14:22:15', '2023-05-23 08:54:18'),
 (3, 'SHIFT 3', '22:00:00', '07:00:00', 1, '2022-11-22 14:23:11', '2022-11-22 14:33:07');
 
 --
@@ -2198,14 +2241,14 @@ DELIMITER ;
 --
 
 CREATE TABLE `m_packing_spec` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint NOT NULL,
   `packing_spec` varchar(120) NOT NULL,
   `description` text,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `updated_by` bigint(20) DEFAULT NULL,
-  `created_by` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `updated_by` bigint DEFAULT NULL,
+  `created_by` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -2217,8 +2260,8 @@ CREATE TABLE `m_test_bom` (
   `sap_client` varchar(255) DEFAULT NULL,
   `plant` varchar(255) DEFAULT NULL,
   `material` varchar(255) DEFAULT NULL,
-  `qty` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `qty` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -2227,33 +2270,33 @@ CREATE TABLE `m_test_bom` (
 --
 
 CREATE TABLE `oee` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `shift_id` bigint(20) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED DEFAULT NULL,
+  `shift_id` bigint DEFAULT NULL,
   `tanggal` date DEFAULT NULL,
   `start` time DEFAULT NULL,
   `finish` time DEFAULT NULL,
-  `lamakejadian` int(11) DEFAULT '0',
-  `activity_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `lamakejadian` int DEFAULT '0',
+  `activity_id` bigint UNSIGNED DEFAULT NULL,
   `remark` text,
   `operator` varchar(128) DEFAULT NULL,
-  `planorder_id` bigint(20) DEFAULT NULL,
+  `planorder_id` bigint DEFAULT NULL,
   `production_code` varchar(128) DEFAULT NULL,
   `expired_date` date DEFAULT NULL,
-  `finish_good` int(11) DEFAULT '0',
-  `qc_sample` int(11) DEFAULT '0',
+  `finish_good` int DEFAULT '0',
+  `qc_sample` int DEFAULT '0',
   `category_rework` varchar(64) DEFAULT NULL,
-  `rework` int(11) DEFAULT '0',
-  `reject` int(11) DEFAULT '0',
+  `rework` int DEFAULT '0',
+  `reject` int DEFAULT '0',
   `category_reject` varchar(64) DEFAULT NULL,
-  `waiting_tech` int(11) DEFAULT NULL COMMENT 'Menit',
-  `repair_problem` int(11) DEFAULT NULL COMMENT 'Menit',
-  `trial_time` int(11) DEFAULT NULL COMMENT 'Menit',
+  `waiting_tech` int DEFAULT NULL COMMENT 'Menit',
+  `repair_problem` int DEFAULT NULL COMMENT 'Menit',
+  `trial_time` int DEFAULT NULL COMMENT 'Menit',
   `tech_name` varchar(128) DEFAULT NULL,
   `bas_com` varchar(32) DEFAULT NULL,
   `category_br` varchar(32) DEFAULT NULL,
   `category_ampm` varchar(16) DEFAULT NULL,
-  `jumlah_manpower` int(11) DEFAULT NULL
+  `jumlah_manpower` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -2262,7 +2305,7 @@ CREATE TABLE `oee` (
 
 INSERT INTO `oee` (`id`, `line_id`, `shift_id`, `tanggal`, `start`, `finish`, `lamakejadian`, `activity_id`, `remark`, `operator`, `planorder_id`, `production_code`, `expired_date`, `finish_good`, `qc_sample`, `category_rework`, `rework`, `reject`, `category_reject`, `waiting_tech`, `repair_problem`, `trial_time`, `tech_name`, `bas_com`, `category_br`, `category_ampm`, `jumlah_manpower`) VALUES
 (1, 2, 2, '2023-01-23', '20:53:26', '20:58:26', 300, 874, NULL, NULL, 3, NULL, NULL, 0, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2, 2, 1, '2023-01-26', '20:58:26', '21:01:02', 156, 876, NULL, NULL, 3, NULL, NULL, 0, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(2, 2, 1, '2023-01-26', '20:58:26', '21:01:44', 198, 876, NULL, NULL, 3, NULL, NULL, 0, 0, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2271,32 +2314,32 @@ INSERT INTO `oee` (`id`, `line_id`, `shift_id`, `tanggal`, `start`, `finish`, `l
 --
 
 CREATE TABLE `oee_drier` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `shift_id` bigint(20) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED DEFAULT NULL,
+  `shift_id` bigint DEFAULT NULL,
   `tanggal` date DEFAULT NULL,
   `start` time DEFAULT NULL,
   `finish` time DEFAULT NULL,
-  `lamakejadian` int(11) DEFAULT '0',
-  `activity_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `lamakejadian` int DEFAULT '0',
+  `activity_id` bigint UNSIGNED DEFAULT NULL,
   `remark` text,
   `operator` varchar(128) DEFAULT NULL,
   `produk_code` varchar(128) DEFAULT NULL,
   `produk` varchar(128) DEFAULT NULL,
   `okp_drier` varchar(128) DEFAULT NULL,
-  `output_bin` int(11) DEFAULT NULL,
-  `output_kg` int(11) DEFAULT NULL,
-  `rework` int(11) DEFAULT NULL,
+  `output_bin` int DEFAULT NULL,
+  `output_kg` int DEFAULT NULL,
+  `rework` int DEFAULT NULL,
   `category_rework` varchar(64) DEFAULT NULL,
-  `reject` int(11) DEFAULT NULL,
-  `waiting_tech` int(11) DEFAULT NULL COMMENT 'Menit',
+  `reject` int DEFAULT NULL,
+  `waiting_tech` int DEFAULT NULL COMMENT 'Menit',
   `tech_name` varchar(128) DEFAULT NULL,
-  `repair_problem` int(11) DEFAULT NULL COMMENT 'Menit',
-  `trial_time` int(11) DEFAULT NULL COMMENT 'Menit',
+  `repair_problem` int DEFAULT NULL COMMENT 'Menit',
+  `trial_time` int DEFAULT NULL COMMENT 'Menit',
   `bas_com` varchar(32) DEFAULT NULL,
   `category_br` varchar(32) DEFAULT NULL,
   `category_ampm` varchar(16) DEFAULT NULL,
-  `jumlah_manpower` int(11) DEFAULT NULL
+  `jumlah_manpower` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -4442,8 +4485,8 @@ INSERT INTO `oee_drier` (`id`, `line_id`, `shift_id`, `tanggal`, `start`, `finis
 --
 
 CREATE TABLE `password_resets` (
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -4454,12 +4497,12 @@ CREATE TABLE `password_resets` (
 --
 
 CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `tokenable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `abilities` text COLLATE utf8mb4_unicode_ci,
+  `id` bigint UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -4472,11 +4515,11 @@ CREATE TABLE `personal_access_tokens` (
 --
 
 CREATE TABLE `product` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `price` int(11) DEFAULT NULL,
-  `year` int(11) DEFAULT NULL,
-  `product_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `price` int DEFAULT NULL,
+  `year` int DEFAULT NULL,
+  `product_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -4488,8 +4531,8 @@ CREATE TABLE `product` (
 --
 
 CREATE TABLE `submenu` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `menu_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `menu_id` bigint UNSIGNED NOT NULL,
   `txturl` varchar(64) NOT NULL,
   `txttitle` varchar(64) NOT NULL,
   `txtroute` varchar(64) NOT NULL,
@@ -4516,8 +4559,7 @@ INSERT INTO `submenu` (`id`, `menu_id`, `txturl`, `txttitle`, `txtroute`, `txtic
 (12, 28, '/admin/server', 'Server MQTT', 'manage.server.index', 'fas fa-server', '2022-10-29 06:52:52', '2022-10-29 07:19:07'),
 (13, 28, '/admin/topic', 'Manage Topic', 'manage.topic.index', 'fas fa-key', '2022-10-29 07:02:47', '2022-10-29 07:19:17'),
 (14, 28, '/admin/topic-results', 'Topic Results', 'view.topic.result', 'fas fa-poll-h', '2022-11-01 18:53:04', '2022-11-01 18:53:04'),
-(15, 4, '/admin/assign/operator', 'Assign Operator', 'assign.operator.index', 'fas fa-calendar', '2022-11-15 23:38:28', '2022-12-28 00:58:13'),
-(16, 29, '/detailreport/production', 'Production', 'detail-report.production', 'fas fa-window-maximize', '2023-05-18 11:50:45', '2023-05-18 11:50:45');
+(15, 4, '/admin/assign/operator', 'Assign Operator', 'assign.operator.index', 'fas fa-calendar', '2022-11-15 23:38:28', '2022-12-28 00:58:13');
 
 -- --------------------------------------------------------
 
@@ -4526,17 +4568,17 @@ INSERT INTO `submenu` (`id`, `menu_id`, `txturl`, `txttitle`, `txtroute`, `txtic
 --
 
 CREATE TABLE `tbl_tr_breakdown` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL DEFAULT '0',
-  `machine_id` int(11) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL DEFAULT '0',
+  `machine_id` int NOT NULL DEFAULT '0',
   `breakdown_start` datetime NOT NULL,
   `breakdown_finish` datetime NOT NULL,
-  `breakdown_id` int(11) NOT NULL DEFAULT '0',
+  `breakdown_id` int NOT NULL DEFAULT '0',
   `created_by` varchar(50) NOT NULL DEFAULT '0',
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` varchar(50) NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tbl_tr_breakdown`
@@ -4552,15 +4594,15 @@ INSERT INTO `tbl_tr_breakdown` (`id`, `pos_id`, `machine_id`, `breakdown_start`,
 --
 
 CREATE TABLE `tbl_tr_checkman_d` (
-  `id` int(11) NOT NULL,
-  `id_checkman_h` int(11) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `id_checkman_h` int NOT NULL DEFAULT '0',
   `part_number` varchar(50) NOT NULL DEFAULT '0',
   `status` varchar(50) NOT NULL DEFAULT '0',
   `created_by` varchar(50) NOT NULL DEFAULT '0',
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` varchar(50) NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tbl_tr_checkman_d`
@@ -4577,15 +4619,15 @@ INSERT INTO `tbl_tr_checkman_d` (`id`, `id_checkman_h`, `part_number`, `status`,
 --
 
 CREATE TABLE `tbl_tr_checkman_h` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL DEFAULT '0',
   `epc` varchar(50) NOT NULL DEFAULT '0',
-  `qty` int(11) NOT NULL DEFAULT '0',
+  `qty` int NOT NULL DEFAULT '0',
   `created_by` varchar(50) NOT NULL,
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tbl_tr_checkman_h`
@@ -4607,17 +4649,17 @@ INSERT INTO `tbl_tr_checkman_h` (`id`, `pos_id`, `epc`, `qty`, `created_by`, `cr
 --
 
 CREATE TABLE `tbl_tr_kanban_pw_in` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL,
   `epc_no` varchar(50) NOT NULL,
-  `qty` int(11) NOT NULL DEFAULT '0',
+  `qty` int NOT NULL DEFAULT '0',
   `created_at` varchar(50) DEFAULT NULL,
   `created_dt` datetime DEFAULT NULL,
   `updated_at` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `is_finish` tinyint(1) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `user_id` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tbl_tr_kanban_pw_in`
@@ -4717,15 +4759,15 @@ INSERT INTO `tbl_tr_kanban_pw_in` (`id`, `pos_id`, `epc_no`, `qty`, `created_at`
 --
 
 CREATE TABLE `tbl_tr_kanban_pw_out` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL,
   `epc_no` varchar(50) NOT NULL,
-  `qty` int(11) NOT NULL DEFAULT '0',
+  `qty` int NOT NULL DEFAULT '0',
   `created_at` varchar(50) DEFAULT NULL,
   `created_dt` datetime DEFAULT NULL,
   `updated_at` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `tbl_tr_kanban_pw_out`
@@ -4748,19 +4790,19 @@ INSERT INTO `tbl_tr_kanban_pw_out` (`id`, `pos_id`, `epc_no`, `qty`, `created_at
 --
 
 CREATE TABLE `tb_m_bom` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `part_number` varchar(50) DEFAULT NULL,
-  `manufacturing _qty` int(11) NOT NULL DEFAULT '0',
+  `manufacturing _qty` int NOT NULL DEFAULT '0',
   `unit` varchar(50) NOT NULL DEFAULT '0',
   `part_child` varchar(50) DEFAULT NULL,
-  `part_child_qty` int(11) NOT NULL DEFAULT '0',
+  `part_child_qty` int NOT NULL DEFAULT '0',
   `unit_child` varchar(50) NOT NULL DEFAULT '0',
-  `pos_id` int(11) DEFAULT NULL,
+  `pos_id` int DEFAULT NULL,
   `created_at` varchar(50) NOT NULL DEFAULT '0',
   `created_dt` datetime NOT NULL,
   `updated_at` varchar(50) NOT NULL DEFAULT '0',
   `updated_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_bom`
@@ -5171,14 +5213,14 @@ INSERT INTO `tb_m_bom` (`id`, `part_number`, `manufacturing _qty`, `unit`, `part
 --
 
 CREATE TABLE `tb_m_breakdown` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `breakdown_code` varchar(50) NOT NULL,
   `description` varchar(50) NOT NULL,
   `created_by` varchar(50) NOT NULL,
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` varchar(50) NOT NULL,
   `updated_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_breakdown`
@@ -5196,7 +5238,7 @@ INSERT INTO `tb_m_breakdown` (`id`, `breakdown_code`, `description`, `created_by
 --
 
 CREATE TABLE `tb_m_item_parts` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `sap_id` varchar(50) NOT NULL DEFAULT '0',
   `part_number` varchar(50) NOT NULL DEFAULT '0',
   `part_name` varchar(50) NOT NULL DEFAULT '0',
@@ -5204,19 +5246,19 @@ CREATE TABLE `tb_m_item_parts` (
   `location_code` varchar(50) NOT NULL DEFAULT '0',
   `model` varchar(50) NOT NULL DEFAULT '0',
   `supplier_customer_code` varchar(50) NOT NULL DEFAULT '0',
-  `min_qty` int(11) NOT NULL DEFAULT '0',
-  `max_qty` int(11) NOT NULL DEFAULT '0',
-  `standard` int(11) NOT NULL DEFAULT '0',
+  `min_qty` int NOT NULL DEFAULT '0',
+  `max_qty` int NOT NULL DEFAULT '0',
+  `standard` int NOT NULL DEFAULT '0',
   `packaging_name` varchar(50) NOT NULL DEFAULT '0',
-  `lot_qty` int(11) NOT NULL DEFAULT '0',
+  `lot_qty` int NOT NULL DEFAULT '0',
   `unit` varchar(50) NOT NULL DEFAULT '0',
   `common_item` bit(1) NOT NULL DEFAULT b'0',
-  `ct` int(11) NOT NULL DEFAULT '0',
+  `ct` int NOT NULL DEFAULT '0',
   `created_at` varchar(50) DEFAULT NULL,
   `created_dt` timestamp NULL DEFAULT NULL,
   `updated_at` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_item_parts`
@@ -5361,7 +5403,7 @@ INSERT INTO `tb_m_item_parts` (`id`, `sap_id`, `part_number`, `part_name`, `part
 --
 
 CREATE TABLE `tb_m_kanban` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `epc` varchar(50) NOT NULL DEFAULT '',
   `kanban_no` varchar(50) NOT NULL DEFAULT '',
   `kanban_type` varchar(50) NOT NULL DEFAULT '',
@@ -5369,7 +5411,7 @@ CREATE TABLE `tb_m_kanban` (
   `sap_id` varchar(50) NOT NULL DEFAULT '',
   `part_number` varchar(50) NOT NULL DEFAULT '',
   `part_name` varchar(50) NOT NULL DEFAULT '',
-  `qty_kanban` int(11) NOT NULL,
+  `qty_kanban` int NOT NULL,
   `packaging_type` varchar(50) NOT NULL DEFAULT '',
   `from_loc` varchar(50) DEFAULT NULL,
   `to_loc` varchar(50) DEFAULT NULL,
@@ -5384,12 +5426,12 @@ CREATE TABLE `tb_m_kanban` (
   `admin` varchar(50) DEFAULT NULL,
   `valid_from` datetime DEFAULT NULL,
   `valid_to` datetime DEFAULT NULL,
-  `status` int(1) DEFAULT '1',
+  `status` int DEFAULT '1',
   `created_at` varchar(50) DEFAULT NULL,
   `created_dt` datetime DEFAULT NULL,
   `updated_at` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_kanban`
@@ -6363,7 +6405,7 @@ INSERT INTO `tb_m_kanban` (`id`, `epc`, `kanban_no`, `kanban_type`, `job_no`, `s
 --
 
 CREATE TABLE `tb_m_pos` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `pos_code` varchar(7) NOT NULL,
   `description` varchar(50) DEFAULT NULL,
   `type_scan_1` varchar(50) DEFAULT NULL,
@@ -6373,7 +6415,7 @@ CREATE TABLE `tb_m_pos` (
   `updated_at` varchar(50) DEFAULT NULL,
   `updated_dt` timestamp NULL DEFAULT NULL,
   `type` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_pos`
@@ -6396,7 +6438,7 @@ INSERT INTO `tb_m_pos` (`id`, `pos_code`, `description`, `type_scan_1`, `type_sc
 --
 
 CREATE TABLE `tb_m_route` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `route_code` varchar(50) NOT NULL,
   `from` varchar(50) NOT NULL,
   `to` varchar(50) NOT NULL,
@@ -6405,7 +6447,7 @@ CREATE TABLE `tb_m_route` (
   `cretaed_by` datetime NOT NULL,
   `updated_at` varchar(50) NOT NULL,
   `updated_dt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_route`
@@ -6439,7 +6481,7 @@ INSERT INTO `tb_m_route` (`id`, `route_code`, `from`, `to`, `zone`, `created_at`
 --
 
 CREATE TABLE `tb_m_supplier_customer` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `customer_supplier_code` varchar(50) NOT NULL DEFAULT '',
   `cs_name` varchar(50) NOT NULL DEFAULT '',
   `cs_type` varchar(50) NOT NULL DEFAULT '',
@@ -6450,7 +6492,7 @@ CREATE TABLE `tb_m_supplier_customer` (
   `created_dt` datetime DEFAULT NULL,
   `updated_at` varchar(50) NOT NULL DEFAULT '',
   `updated_dt` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `tb_m_supplier_customer`
@@ -6470,9 +6512,9 @@ INSERT INTO `tb_m_supplier_customer` (`id`, `customer_supplier_code`, `cs_name`,
 --
 
 CREATE TABLE `tb_order` (
-  `id` int(11) NOT NULL,
-  `Kolom 2` int(11) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `id` int NOT NULL,
+  `Kolom 2` int NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -6481,9 +6523,9 @@ CREATE TABLE `tb_order` (
 --
 
 CREATE TABLE `tb_t_kanban_in` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL DEFAULT '0',
+  `user_id` int NOT NULL DEFAULT '0',
   `epc` varchar(50) NOT NULL DEFAULT '0',
   `kanban_id` varchar(50) NOT NULL DEFAULT '0',
   `kanban_type` varchar(50) NOT NULL DEFAULT '0',
@@ -6493,7 +6535,7 @@ CREATE TABLE `tb_t_kanban_in` (
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` varchar(50) DEFAULT NULL,
   `sap_id` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -6502,9 +6544,9 @@ CREATE TABLE `tb_t_kanban_in` (
 --
 
 CREATE TABLE `tb_t_kanban_out` (
-  `id` int(11) NOT NULL,
-  `pos_id` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `pos_id` int NOT NULL DEFAULT '0',
+  `user_id` int NOT NULL DEFAULT '0',
   `epc` varchar(50) NOT NULL DEFAULT '0',
   `kanban_id` varchar(50) NOT NULL DEFAULT '0',
   `kanban_type` varchar(50) NOT NULL DEFAULT '0',
@@ -6514,7 +6556,7 @@ CREATE TABLE `tb_t_kanban_out` (
   `created_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` varchar(50) DEFAULT NULL,
   `sap_id` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
 
@@ -6523,9 +6565,9 @@ CREATE TABLE `tb_t_kanban_out` (
 --
 
 CREATE TABLE `tr_dailyactivity` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `working_id` bigint(20) UNSIGNED NOT NULL,
-  `activity_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `working_id` bigint UNSIGNED NOT NULL,
+  `activity_id` bigint UNSIGNED NOT NULL,
   `tmstart` time NOT NULL,
   `tmfinish` time NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -6539,9 +6581,9 @@ CREATE TABLE `tr_dailyactivity` (
 --
 
 CREATE TABLE `tr_kpi` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `kpi_id` bigint(20) UNSIGNED NOT NULL,
-  `line_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `kpi_id` bigint UNSIGNED NOT NULL,
+  `line_id` bigint UNSIGNED NOT NULL,
   `ar` float NOT NULL,
   `pr` float NOT NULL,
   `qr` float NOT NULL,
@@ -6564,10 +6606,10 @@ INSERT INTO `tr_kpi` (`id`, `kpi_id`, `line_id`, `ar`, `pr`, `qr`, `created_at`,
 --
 
 CREATE TABLE `tr_topic` (
-  `topic_id` bigint(20) UNSIGNED NOT NULL,
+  `topic_id` bigint UNSIGNED NOT NULL,
   `txtname` varchar(64) NOT NULL,
   `txttopic` varchar(64) NOT NULL,
-  `activity_id` bigint(20) UNSIGNED NOT NULL
+  `activity_id` bigint UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -6590,31 +6632,31 @@ INSERT INTO `tr_topic` (`topic_id`, `txtname`, `txttopic`, `activity_id`) VALUES
 -- (See below for the actual view)
 --
 CREATE TABLE `v_calc_poe` (
-`id` bigint(20) unsigned
-,`line_id` bigint(20) unsigned
-,`tanggal` date
-,`shift_id` bigint(20)
-,`txtbatchcode` varchar(64)
-,`item_id` int(11)
-,`ct` int(11)
-,`actual_speed` decimal(10,2)
-,`speed_loss` decimal(10,2)
+`actual_speed` decimal(10,2)
+,`ar` decimal(10,2)
+,`ct` int
 ,`defect_loss` decimal(10,2)
 ,`downtime_loss` decimal(35,0)
-,`total_mi` decimal(32,0)
-,`total_sh` decimal(32,0)
-,`total_downtime` decimal(34,0)
-,`working_time` decimal(32,0)
+,`id` bigint unsigned
+,`item_id` int
+,`line_id` bigint unsigned
 ,`loading_time` decimal(33,0)
-,`operating_time` decimal(32,0)
 ,`net_optime` decimal(35,2)
-,`value_adding` decimal(39,5)
-,`ar` decimal(10,2)
+,`oee` decimal(10,2)
+,`operating_time` decimal(32,0)
 ,`pr` decimal(10,2)
 ,`qr` decimal(10,2)
-,`oee` decimal(10,2)
+,`shift_id` bigint
+,`speed_loss` decimal(10,2)
+,`tanggal` date
+,`total_downtime` decimal(34,0)
+,`total_mi` decimal(32,0)
 ,`total_output` decimal(10,0)
+,`total_sh` decimal(32,0)
+,`txtbatchcode` varchar(64)
 ,`utilization_rate` decimal(10,2)
+,`value_adding` decimal(39,5)
+,`working_time` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6624,16 +6666,16 @@ CREATE TABLE `v_calc_poe` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_daily_poe` (
-`tanggal` date
-,`line_id` bigint(20) unsigned
-,`total_output` decimal(32,0)
-,`sum_total` decimal(10,2)
-,`ar` decimal(10,2)
-,`pr` decimal(10,2)
-,`qr` decimal(10,2)
+`ar` decimal(10,2)
+,`hasil` decimal(10,2)
+,`line_id` bigint unsigned
 ,`oee` decimal(10,2)
 ,`percent` decimal(10,2)
-,`hasil` decimal(10,2)
+,`pr` decimal(10,2)
+,`qr` decimal(10,2)
+,`sum_total` decimal(10,2)
+,`tanggal` date
+,`total_output` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6643,16 +6685,16 @@ CREATE TABLE `v_daily_poe` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_downtime_day` (
-`tanggal` date
-,`line_id` bigint(20) unsigned
+`activity_id` bigint unsigned
+,`detail` json
 ,`durasi` decimal(32,0)
-,`activity_id` bigint(20) unsigned
+,`frequency` bigint
+,`line_id` bigint unsigned
+,`remark` text
+,`tanggal` date
 ,`txtactivitycode` char(16)
 ,`txtcategory` char(100)
 ,`txtdescription` text
-,`remark` text
-,`frequency` bigint(21)
-,`detail` json
 );
 
 -- --------------------------------------------------------
@@ -6662,17 +6704,17 @@ CREATE TABLE `v_downtime_day` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_downtime_month` (
-`tanggal` date
-,`month` varchar(9)
-,`line_id` bigint(20) unsigned
+`activity_id` bigint unsigned
+,`detail` json
 ,`durasi` decimal(32,0)
-,`activity_id` bigint(20) unsigned
+,`frequency` bigint
+,`line_id` bigint unsigned
+,`month` varchar(9)
+,`remark` text
+,`tanggal` date
 ,`txtactivitycode` char(16)
 ,`txtcategory` char(100)
 ,`txtdescription` text
-,`remark` text
-,`frequency` bigint(21)
-,`detail` json
 );
 
 -- --------------------------------------------------------
@@ -6682,17 +6724,17 @@ CREATE TABLE `v_downtime_month` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_downtime_shift` (
-`tanggal` date
-,`shift` varchar(39)
-,`line_id` bigint(20) unsigned
+`activity_id` bigint unsigned
+,`detail` json
 ,`durasi` decimal(32,0)
-,`activity_id` bigint(20) unsigned
+,`frequency` bigint
+,`line_id` bigint unsigned
+,`remark` text
+,`shift` varchar(39)
+,`tanggal` date
 ,`txtactivitycode` char(16)
 ,`txtcategory` char(100)
 ,`txtdescription` text
-,`remark` text
-,`frequency` bigint(21)
-,`detail` json
 );
 
 -- --------------------------------------------------------
@@ -6702,17 +6744,17 @@ CREATE TABLE `v_downtime_shift` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_downtime_week` (
-`tanggal` date
-,`week` varchar(14)
-,`line_id` bigint(20) unsigned
+`activity_id` bigint unsigned
+,`detail` json
 ,`durasi` decimal(32,0)
-,`activity_id` bigint(20) unsigned
+,`frequency` bigint
+,`line_id` bigint unsigned
+,`remark` text
+,`tanggal` date
 ,`txtactivitycode` char(16)
 ,`txtcategory` char(100)
 ,`txtdescription` text
-,`remark` text
-,`frequency` bigint(21)
-,`detail` json
+,`week` varchar(15)
 );
 
 -- --------------------------------------------------------
@@ -6722,29 +6764,29 @@ CREATE TABLE `v_downtime_week` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_drier_daily` (
-`id` bigint(20) unsigned
-,`line_id` bigint(20) unsigned
-,`tanggal` date
-,`shift_id` bigint(20)
-,`okp_drier` varchar(128)
-,`product` varchar(128)
-,`working_time` decimal(32,0)
-,`downtime_loss` decimal(35,0)
-,`loading_time` decimal(33,0)
-,`operating_time` decimal(32,0)
-,`net_optime` decimal(10,2)
-,`total_output` decimal(10,2)
-,`standar_speed` float
-,`actual_speed` decimal(10,2)
-,`speed_loss` decimal(10,2)
-,`defect` decimal(10,2)
-,`total_mi` decimal(32,0)
-,`total_sh` decimal(32,0)
-,`total_downtime` decimal(34,0)
-,`value_adding` decimal(10,2)
+`actual_speed` decimal(10,2)
 ,`ar` decimal(10,2)
+,`defect` decimal(10,2)
+,`downtime_loss` decimal(35,0)
+,`id` bigint unsigned
+,`line_id` bigint unsigned
+,`loading_time` decimal(33,0)
+,`net_optime` decimal(10,2)
+,`okp_drier` varchar(128)
+,`operating_time` decimal(32,0)
 ,`pr` decimal(10,2)
+,`product` varchar(128)
 ,`qr` decimal(10,2)
+,`shift_id` bigint
+,`speed_loss` decimal(10,2)
+,`standar_speed` float
+,`tanggal` date
+,`total_downtime` decimal(34,0)
+,`total_mi` decimal(32,0)
+,`total_output` decimal(10,2)
+,`total_sh` decimal(32,0)
+,`value_adding` decimal(10,2)
+,`working_time` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6754,16 +6796,16 @@ CREATE TABLE `v_drier_daily` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_month_poe` (
-`tanggal` date
-,`line_id` bigint(20) unsigned
-,`total_output` decimal(32,0)
-,`sum_total` decimal(10,2)
-,`ar` decimal(10,2)
-,`pr` decimal(10,2)
-,`qr` decimal(10,2)
+`ar` decimal(10,2)
+,`hasil` decimal(10,2)
+,`line_id` bigint unsigned
 ,`oee` decimal(10,2)
 ,`percent` decimal(10,4)
-,`hasil` decimal(10,2)
+,`pr` decimal(10,2)
+,`qr` decimal(10,2)
+,`sum_total` decimal(10,2)
+,`tanggal` date
+,`total_output` decimal(32,0)
 ,`utilization_rate` decimal(10,2)
 );
 
@@ -6774,34 +6816,34 @@ CREATE TABLE `v_month_poe` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_oee_daily` (
-`id` bigint(20) unsigned
-,`tanggal` date
-,`line_id` bigint(20) unsigned
-,`shift_id` bigint(20)
-,`txtbatchcode` varchar(64)
-,`item_id` int(11)
-,`ct` int(11)
-,`working_time` decimal(32,0)
-,`total_mi` decimal(32,0)
-,`operating_time` decimal(32,0)
-,`total_sh` decimal(32,0)
-,`loading_time` decimal(33,0)
-,`total_downtime` decimal(34,0)
-,`fg` decimal(32,0)
-,`qc_sample` decimal(32,0)
-,`rework` decimal(32,0)
-,`reject` decimal(10,0)
+`actual_speed` decimal(10,2)
+,`avaibility_rate` decimal(10,2)
+,`ct` int
 ,`defect` decimal(10,0)
-,`total_output` decimal(10,0)
-,`actual_speed` decimal(10,2)
-,`speed_loss` decimal(10,2)
 ,`defect_loss` decimal(10,2)
 ,`downtime_loss` decimal(35,0)
+,`fg` decimal(32,0)
+,`id` bigint unsigned
+,`item_id` int
+,`line_id` bigint unsigned
+,`loading_time` decimal(33,0)
 ,`net_optime` decimal(35,2)
-,`value_adding` decimal(39,5)
-,`avaibility_rate` decimal(10,2)
+,`operating_time` decimal(32,0)
 ,`performance_rate` decimal(10,2)
+,`qc_sample` decimal(32,0)
 ,`quality_rate` decimal(10,2)
+,`reject` decimal(10,0)
+,`rework` decimal(32,0)
+,`shift_id` bigint
+,`speed_loss` decimal(10,2)
+,`tanggal` date
+,`total_downtime` decimal(34,0)
+,`total_mi` decimal(32,0)
+,`total_output` decimal(10,0)
+,`total_sh` decimal(32,0)
+,`txtbatchcode` varchar(64)
+,`value_adding` decimal(39,5)
+,`working_time` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6811,33 +6853,33 @@ CREATE TABLE `v_oee_daily` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_oee_shift` (
-`id` bigint(20) unsigned
-,`tanggal` date
-,`line_id` bigint(20) unsigned
-,`shift_id` bigint(20)
-,`txtbatchcode` varchar(64)
-,`ct` int(11)
-,`working_time` decimal(32,0)
-,`total_mi` decimal(32,0)
-,`operating_time` decimal(32,0)
-,`total_sh` decimal(32,0)
-,`loading_time` decimal(33,0)
-,`total_downtime` decimal(34,0)
-,`fg` decimal(32,0)
-,`qc_sample` decimal(32,0)
-,`rework` decimal(32,0)
-,`reject` decimal(10,0)
+`actual_speed` decimal(10,2)
+,`avaibility_rate` decimal(10,2)
+,`ct` int
 ,`defect` decimal(10,0)
-,`total_output` decimal(10,0)
-,`actual_speed` decimal(10,2)
-,`speed_loss` decimal(10,2)
 ,`defect_loss` decimal(10,2)
 ,`downtime_loss` decimal(35,0)
+,`fg` decimal(32,0)
+,`id` bigint unsigned
+,`line_id` bigint unsigned
+,`loading_time` decimal(33,0)
 ,`net_optime` decimal(35,2)
-,`value_adding` decimal(39,5)
-,`avaibility_rate` decimal(10,2)
+,`operating_time` decimal(32,0)
 ,`performance_rate` decimal(10,2)
+,`qc_sample` decimal(32,0)
 ,`quality_rate` decimal(10,2)
+,`reject` decimal(10,0)
+,`rework` decimal(32,0)
+,`shift_id` bigint
+,`speed_loss` decimal(10,2)
+,`tanggal` date
+,`total_downtime` decimal(34,0)
+,`total_mi` decimal(32,0)
+,`total_output` decimal(10,0)
+,`total_sh` decimal(32,0)
+,`txtbatchcode` varchar(64)
+,`value_adding` decimal(39,5)
+,`working_time` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6847,11 +6889,11 @@ CREATE TABLE `v_oee_shift` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_percent_poe` (
-`tanggal` date
-,`line_id` bigint(20) unsigned
-,`total` decimal(32,0)
+`line_id` bigint unsigned
 ,`oee` decimal(10,2)
 ,`sum_total` decimal(32,0)
+,`tanggal` date
+,`total` decimal(32,0)
 );
 
 -- --------------------------------------------------------
@@ -6861,22 +6903,22 @@ CREATE TABLE `v_percent_poe` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_shift_oee` (
-`id` bigint(20) unsigned
-,`line_id` int(11)
-,`shift_id` int(11)
-,`tanggal` date
-,`txtbatchcode` varchar(64)
-,`ct` int(11)
-,`working_time` decimal(36,4)
-,`operating_time` decimal(37,4)
-,`total_mi` decimal(36,4)
-,`total_sh` decimal(36,4)
-,`total_downtime` decimal(36,4)
+`avaibility_rate` decimal(10,2)
 ,`capacity` decimal(10,2)
-,`avaibility_rate` decimal(10,2)
+,`ct` int
+,`id` bigint unsigned
+,`line_id` int
+,`operating_time` decimal(37,4)
 ,`performance_rate` decimal(10,2)
 ,`quality_rate` decimal(10,2)
+,`shift_id` int
+,`tanggal` date
+,`total_downtime` decimal(36,4)
+,`total_mi` decimal(36,4)
+,`total_sh` decimal(36,4)
+,`txtbatchcode` varchar(64)
 ,`utilization` decimal(10,2)
+,`working_time` decimal(36,4)
 );
 
 -- --------------------------------------------------------
@@ -6886,18 +6928,18 @@ CREATE TABLE `v_shift_oee` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_week_poe` (
-`week` int(2)
+`ar` decimal(10,2)
+,`hasil` decimal(10,2)
+,`line_id` bigint unsigned
 ,`month` varchar(9)
-,`year` int(4)
-,`line_id` bigint(20) unsigned
-,`total_output` decimal(32,0)
-,`sum_total` decimal(10,2)
-,`ar` decimal(10,2)
-,`pr` decimal(10,2)
-,`qr` decimal(10,2)
 ,`oee` decimal(10,2)
 ,`percent` decimal(10,2)
-,`hasil` decimal(10,2)
+,`pr` decimal(10,2)
+,`qr` decimal(10,2)
+,`sum_total` decimal(10,2)
+,`total_output` decimal(32,0)
+,`week` int
+,`year` int
 );
 
 -- --------------------------------------------------------
@@ -6907,16 +6949,16 @@ CREATE TABLE `v_week_poe` (
 -- (See below for the actual view)
 --
 CREATE TABLE `v_year_poe` (
-`tanggal` date
-,`line_id` bigint(20) unsigned
-,`total_output` decimal(32,0)
-,`sum_total` decimal(10,2)
-,`ar` decimal(10,2)
-,`pr` decimal(10,2)
-,`qr` decimal(10,2)
+`ar` decimal(10,2)
+,`hasil` decimal(10,2)
+,`line_id` bigint unsigned
 ,`oee` decimal(10,2)
 ,`percent` decimal(10,4)
-,`hasil` decimal(10,2)
+,`pr` decimal(10,2)
+,`qr` decimal(10,2)
+,`sum_total` decimal(10,2)
+,`tanggal` date
+,`total_output` decimal(32,0)
 ,`utilization_rate` decimal(10,2)
 );
 
@@ -6927,7 +6969,7 @@ CREATE TABLE `v_year_poe` (
 --
 DROP TABLE IF EXISTS `v_calc_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_calc_poe`  AS   (select `v_oee_daily`.`id` AS `id`,`v_oee_daily`.`line_id` AS `line_id`,`v_oee_daily`.`tanggal` AS `tanggal`,`v_oee_daily`.`shift_id` AS `shift_id`,`v_oee_daily`.`txtbatchcode` AS `txtbatchcode`,`v_oee_daily`.`item_id` AS `item_id`,`v_oee_daily`.`ct` AS `ct`,`v_oee_daily`.`actual_speed` AS `actual_speed`,`v_oee_daily`.`speed_loss` AS `speed_loss`,`v_oee_daily`.`defect_loss` AS `defect_loss`,`v_oee_daily`.`downtime_loss` AS `downtime_loss`,`v_oee_daily`.`total_mi` AS `total_mi`,`v_oee_daily`.`total_sh` AS `total_sh`,`v_oee_daily`.`total_downtime` AS `total_downtime`,`v_oee_daily`.`working_time` AS `working_time`,`v_oee_daily`.`loading_time` AS `loading_time`,`v_oee_daily`.`operating_time` AS `operating_time`,`v_oee_daily`.`net_optime` AS `net_optime`,`v_oee_daily`.`value_adding` AS `value_adding`,`v_oee_daily`.`avaibility_rate` AS `ar`,`v_oee_daily`.`performance_rate` AS `pr`,`v_oee_daily`.`quality_rate` AS `qr`,cast(((((`v_oee_daily`.`avaibility_rate` / 100) * (`v_oee_daily`.`performance_rate` / 100)) * (`v_oee_daily`.`quality_rate` / 100)) * 100) as decimal(10,2)) AS `oee`,`v_oee_daily`.`total_output` AS `total_output`,cast(((`v_oee_daily`.`loading_time` / `v_oee_daily`.`working_time`) * 100) as decimal(10,2)) AS `utilization_rate` from `v_oee_daily`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_calc_poe`  AS SELECT `v_oee_daily`.`id` AS `id`, `v_oee_daily`.`line_id` AS `line_id`, `v_oee_daily`.`tanggal` AS `tanggal`, `v_oee_daily`.`shift_id` AS `shift_id`, `v_oee_daily`.`txtbatchcode` AS `txtbatchcode`, `v_oee_daily`.`item_id` AS `item_id`, `v_oee_daily`.`ct` AS `ct`, `v_oee_daily`.`actual_speed` AS `actual_speed`, `v_oee_daily`.`speed_loss` AS `speed_loss`, `v_oee_daily`.`defect_loss` AS `defect_loss`, `v_oee_daily`.`downtime_loss` AS `downtime_loss`, `v_oee_daily`.`total_mi` AS `total_mi`, `v_oee_daily`.`total_sh` AS `total_sh`, `v_oee_daily`.`total_downtime` AS `total_downtime`, `v_oee_daily`.`working_time` AS `working_time`, `v_oee_daily`.`loading_time` AS `loading_time`, `v_oee_daily`.`operating_time` AS `operating_time`, `v_oee_daily`.`net_optime` AS `net_optime`, `v_oee_daily`.`value_adding` AS `value_adding`, `v_oee_daily`.`avaibility_rate` AS `ar`, `v_oee_daily`.`performance_rate` AS `pr`, `v_oee_daily`.`quality_rate` AS `qr`, cast(((((`v_oee_daily`.`avaibility_rate` / 100) * (`v_oee_daily`.`performance_rate` / 100)) * (`v_oee_daily`.`quality_rate` / 100)) * 100) as decimal(10,2)) AS `oee`, `v_oee_daily`.`total_output` AS `total_output`, cast(((`v_oee_daily`.`loading_time` / `v_oee_daily`.`working_time`) * 100) as decimal(10,2)) AS `utilization_rate` FROM `v_oee_daily``v_oee_daily`  ;
 
 -- --------------------------------------------------------
 
@@ -6936,7 +6978,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_daily_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_daily_poe`  AS   (select `vcp`.`tanggal` AS `tanggal`,`vcp`.`line_id` AS `line_id`,sum(`vcp`.`total_output`) AS `total_output`,cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2)) AS `sum_total`,cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`,cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`,cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`,cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`,cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2))) as decimal(10,2)) AS `percent`,cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil` from `v_calc_poe` `vcp` group by `vcp`.`tanggal`,`vcp`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_daily_poe`  AS SELECT `vcp`.`tanggal` AS `tanggal`, `vcp`.`line_id` AS `line_id`, sum(`vcp`.`total_output`) AS `total_output`, cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2)) AS `sum_total`, cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`, cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`, cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`, cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`, cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2))) as decimal(10,2)) AS `percent`, cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vcp`.`tanggal`) group by `v_calc_poe`.`tanggal`) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil` FROM `v_calc_poe` AS `vcp` GROUP BY `vcp`.`tanggal`, `vcp`.`line_id``line_id`  ;
 
 -- --------------------------------------------------------
 
@@ -6945,7 +6987,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_downtime_day`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_day`  AS   (select `downtime`.`tanggal` AS `tanggal`,`downtime`.`line_id` AS `line_id`,`downtime`.`durasi` AS `durasi`,`downtime`.`activity_id` AS `activity_id`,`downtime`.`txtactivitycode` AS `txtactivitycode`,`downtime`.`txtcategory` AS `txtcategory`,`downtime`.`txtdescription` AS `txtdescription`,`downtime`.`remark` AS `remark`,`downtime`.`frequency` AS `frequency`,`downtime`.`detail` AS `detail` from (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8),'finish',cast(`oee`.`finish` as char charset utf8),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`tanggal`,`oee`.`line_id`,`mact`.`txtactivitycode`) `downtime` group by `downtime`.`tanggal`,`downtime`.`line_id`,`downtime`.`txtactivitycode` order by `downtime`.`tanggal`,`downtime`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_day`  AS SELECT `downtime`.`tanggal` AS `tanggal`, `downtime`.`line_id` AS `line_id`, `downtime`.`durasi` AS `durasi`, `downtime`.`activity_id` AS `activity_id`, `downtime`.`txtactivitycode` AS `txtactivitycode`, `downtime`.`txtcategory` AS `txtcategory`, `downtime`.`txtdescription` AS `txtdescription`, `downtime`.`remark` AS `remark`, `downtime`.`frequency` AS `frequency`, `downtime`.`detail` AS `detail` FROM (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8mb3),'finish',cast(`oee`.`finish` as char charset utf8mb3),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`tanggal`,`oee`.`line_id`,`mact`.`txtactivitycode`) AS `downtime` GROUP BY `downtime`.`tanggal`, `downtime`.`line_id`, `downtime`.`txtactivitycode` ORDER BY `downtime`.`tanggal` ASC, `downtime`.`line_id` ASC  ;
 
 -- --------------------------------------------------------
 
@@ -6954,7 +6996,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_downtime_month`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_month`  AS   (select `downtime`.`tanggal` AS `tanggal`,monthname(`downtime`.`tanggal`) AS `month`,`downtime`.`line_id` AS `line_id`,`downtime`.`durasi` AS `durasi`,`downtime`.`activity_id` AS `activity_id`,`downtime`.`txtactivitycode` AS `txtactivitycode`,`downtime`.`txtcategory` AS `txtcategory`,`downtime`.`txtdescription` AS `txtdescription`,`downtime`.`remark` AS `remark`,`downtime`.`frequency` AS `frequency`,`downtime`.`detail` AS `detail` from (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8),'finish',cast(`oee`.`finish` as char charset utf8),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by month(`oee`.`tanggal`),`oee`.`line_id`,`mact`.`txtactivitycode`) `downtime` group by month(`downtime`.`tanggal`),`downtime`.`line_id`,`downtime`.`txtactivitycode` order by `downtime`.`tanggal`,`downtime`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_month`  AS SELECT `downtime`.`tanggal` AS `tanggal`, monthname(`downtime`.`tanggal`) AS `month`, `downtime`.`line_id` AS `line_id`, `downtime`.`durasi` AS `durasi`, `downtime`.`activity_id` AS `activity_id`, `downtime`.`txtactivitycode` AS `txtactivitycode`, `downtime`.`txtcategory` AS `txtcategory`, `downtime`.`txtdescription` AS `txtdescription`, `downtime`.`remark` AS `remark`, `downtime`.`frequency` AS `frequency`, `downtime`.`detail` AS `detail` FROM (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8mb3),'finish',cast(`oee`.`finish` as char charset utf8mb3),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by month(`oee`.`tanggal`),`oee`.`line_id`,`mact`.`txtactivitycode`) AS `downtime` GROUP BY month(`downtime`.`tanggal`), `downtime`.`line_id`, `downtime`.`txtactivitycode` ORDER BY `downtime`.`tanggal` ASC, `downtime`.`line_id` ASC  ;
 
 -- --------------------------------------------------------
 
@@ -6963,7 +7005,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_downtime_shift`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_shift`  AS   (select `downtime`.`tanggal` AS `tanggal`,concat(`downtime`.`tanggal`,' - SHIFT ',`downtime`.`shift_id`) AS `shift`,`downtime`.`line_id` AS `line_id`,`downtime`.`durasi` AS `durasi`,`downtime`.`activity_id` AS `activity_id`,`downtime`.`txtactivitycode` AS `txtactivitycode`,`downtime`.`txtcategory` AS `txtcategory`,`downtime`.`txtdescription` AS `txtdescription`,`downtime`.`remark` AS `remark`,`downtime`.`frequency` AS `frequency`,`downtime`.`detail` AS `detail` from (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8),'finish',cast(`oee`.`finish` as char charset utf8),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`tanggal`,`oee`.`shift_id`,`oee`.`line_id`,`mact`.`txtactivitycode`) `downtime` order by `downtime`.`tanggal`,`downtime`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_shift`  AS SELECT `downtime`.`tanggal` AS `tanggal`, concat(`downtime`.`tanggal`,' - SHIFT ',`downtime`.`shift_id`) AS `shift`, `downtime`.`line_id` AS `line_id`, `downtime`.`durasi` AS `durasi`, `downtime`.`activity_id` AS `activity_id`, `downtime`.`txtactivitycode` AS `txtactivitycode`, `downtime`.`txtcategory` AS `txtcategory`, `downtime`.`txtdescription` AS `txtdescription`, `downtime`.`remark` AS `remark`, `downtime`.`frequency` AS `frequency`, `downtime`.`detail` AS `detail` FROM (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8mb3),'finish',cast(`oee`.`finish` as char charset utf8mb3),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`tanggal`,`oee`.`shift_id`,`oee`.`line_id`,`mact`.`txtactivitycode`) AS `downtime` ORDER BY `downtime`.`tanggal` ASC, `downtime`.`line_id` ASC  ;
 
 -- --------------------------------------------------------
 
@@ -6972,7 +7014,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_downtime_week`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_week`  AS   (select `downtime`.`tanggal` AS `tanggal`,concat(week(`downtime`.`tanggal`,0),' - ',monthname(`downtime`.`tanggal`)) AS `week`,`downtime`.`line_id` AS `line_id`,`downtime`.`durasi` AS `durasi`,`downtime`.`activity_id` AS `activity_id`,`downtime`.`txtactivitycode` AS `txtactivitycode`,`downtime`.`txtcategory` AS `txtcategory`,`downtime`.`txtdescription` AS `txtdescription`,`downtime`.`remark` AS `remark`,`downtime`.`frequency` AS `frequency`,`downtime`.`detail` AS `detail` from (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8),'finish',cast(`oee`.`finish` as char charset utf8),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by week(`oee`.`tanggal`,0),`oee`.`line_id`,`mact`.`txtactivitycode`) `downtime` group by week(`downtime`.`tanggal`,0),`downtime`.`line_id`,`downtime`.`txtactivitycode` order by `downtime`.`tanggal`,`downtime`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_downtime_week`  AS SELECT `downtime`.`tanggal` AS `tanggal`, concat(week(`downtime`.`tanggal`,0),' - ',monthname(`downtime`.`tanggal`)) AS `week`, `downtime`.`line_id` AS `line_id`, `downtime`.`durasi` AS `durasi`, `downtime`.`activity_id` AS `activity_id`, `downtime`.`txtactivitycode` AS `txtactivitycode`, `downtime`.`txtcategory` AS `txtcategory`, `downtime`.`txtdescription` AS `txtdescription`, `downtime`.`remark` AS `remark`, `downtime`.`frequency` AS `frequency`, `downtime`.`detail` AS `detail` FROM (select `oee`.`tanggal` AS `tanggal`,`oee`.`shift_id` AS `shift_id`,`oee`.`line_id` AS `line_id`,sum(`oee`.`lamakejadian`) AS `durasi`,`oee`.`activity_id` AS `activity_id`,`mact`.`txtactivitycode` AS `txtactivitycode`,`mact`.`txtcategory` AS `txtcategory`,`mact`.`txtdescription` AS `txtdescription`,`oee`.`remark` AS `remark`,count(`mact`.`txtactivitycode`) AS `frequency`,json_arrayagg(json_object('act_code',`mact`.`txtactivitycode`,'start',cast(`oee`.`start` as char charset utf8mb3),'finish',cast(`oee`.`finish` as char charset utf8mb3),'okp',`oee`.`planorder_id`,'remark',`oee`.`remark`)) AS `detail` from (`oee` join (select `mactivitycode`.`id` AS `id`,`mactivitycode`.`line_id` AS `line_id`,`mactivitycode`.`txtactivitycode` AS `txtactivitycode`,`mactivitycode`.`txtcategory` AS `txtcategory`,`mactivitycode`.`txtactivityname` AS `txtactivityname`,`mactivitycode`.`txtactivityitem` AS `txtactivityitem`,`mactivitycode`.`txtdescription` AS `txtdescription`,`mactivitycode`.`created_at` AS `created_at`,`mactivitycode`.`updated_at` AS `updated_at` from `mactivitycode` where (`mactivitycode`.`txtcategory` <> 'pr')) `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by week(`oee`.`tanggal`,0),`oee`.`line_id`,`mact`.`txtactivitycode`) AS `downtime` GROUP BY week(`downtime`.`tanggal`,0), `downtime`.`line_id`, `downtime`.`txtactivitycode` ORDER BY `downtime`.`tanggal` ASC, `downtime`.`line_id` ASC  ;
 
 -- --------------------------------------------------------
 
@@ -6981,7 +7023,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_drier_daily`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_drier_daily`  AS   (select `drier`.`id` AS `id`,`drier`.`line_id` AS `line_id`,`drier`.`tanggal` AS `tanggal`,`drier`.`shift_id` AS `shift_id`,`drier`.`okp_drier` AS `okp_drier`,`prod`.`txtproductname` AS `product`,sum(`drier`.`lamakejadian`) AS `working_time`,(((sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `drier`.`lamakejadian` else 0 end))) AS `downtime_loss`,(sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) AS `loading_time`,sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) AS `operating_time`,cast((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) as decimal(10,2)) AS `net_optime`,cast((((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000) as decimal(10,2)) AS `total_output`,`prod`.`floatstdspeed` AS `standar_speed`,cast((((((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000) * 60) / sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`,cast((((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60) as decimal(10,2)) AS `speed_loss`,cast(((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60) as decimal(10,2)) AS `defect`,sum((case when (`mact`.`txtcategory` = 'mi') then `drier`.`lamakejadian` else 0 end)) AS `total_mi`,sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end)) AS `total_sh`,((sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) AS `total_downtime`,cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) - ((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60)) as decimal(10,2)) AS `value_adding`,cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) / (sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `ar`,cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) / sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `pr`,cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) - ((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60))) * 100) as decimal(10,2)) AS `qr` from ((`oee_drier` `drier` join `mactivitycode` `mact` on((`mact`.`id` = `drier`.`activity_id`))) join `mproduct` `prod` on((`drier`.`produk_code` = `prod`.`txtartcode`))) group by `drier`.`tanggal`,`drier`.`shift_id`,`drier`.`okp_drier`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_drier_daily`  AS SELECT `drier`.`id` AS `id`, `drier`.`line_id` AS `line_id`, `drier`.`tanggal` AS `tanggal`, `drier`.`shift_id` AS `shift_id`, `drier`.`okp_drier` AS `okp_drier`, `prod`.`txtproductname` AS `product`, sum(`drier`.`lamakejadian`) AS `working_time`, (((sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `drier`.`lamakejadian` else 0 end))) AS `downtime_loss`, (sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) AS `loading_time`, sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) AS `operating_time`, cast((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) as decimal(10,2)) AS `net_optime`, cast((((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000) as decimal(10,2)) AS `total_output`, `prod`.`floatstdspeed` AS `standar_speed`, cast((((((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000) * 60) / sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`, cast((((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60) as decimal(10,2)) AS `speed_loss`, cast(((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60) as decimal(10,2)) AS `defect`, sum((case when (`mact`.`txtcategory` = 'mi') then `drier`.`lamakejadian` else 0 end)) AS `total_mi`, sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end)) AS `total_sh`, ((sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end))) AS `total_downtime`, cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) - ((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60)) as decimal(10,2)) AS `value_adding`, cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) / (sum(`drier`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `drier`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `ar`, cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) / sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `pr`, cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60)) - ((((sum(`drier`.`rework`) + sum(`drier`.`reject`)) / 1000) / `prod`.`floatstdspeed`) * 60)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end)) - (((((`prod`.`floatstdspeed` * sum((case when (`mact`.`txtcategory` = 'pr') then `drier`.`lamakejadian` else 0 end))) / 60) - (((sum(`drier`.`output_kg`) + sum(`drier`.`rework`)) + sum(`drier`.`reject`)) / 1000)) / `prod`.`floatstdspeed`) * 60))) * 100) as decimal(10,2)) AS `qr` FROM ((`oee_drier` `drier` join `mactivitycode` `mact` on((`mact`.`id` = `drier`.`activity_id`))) join `mproduct` `prod` on((`drier`.`produk_code` = `prod`.`txtartcode`))) GROUP BY `drier`.`tanggal`, `drier`.`shift_id`, `drier`.`okp_drier``okp_drier`  ;
 
 -- --------------------------------------------------------
 
@@ -6990,7 +7032,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_month_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_month_poe`  AS   (select `vcp`.`tanggal` AS `tanggal`,`vcp`.`line_id` AS `line_id`,sum(`vcp`.`total_output`) AS `total_output`,cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2)) AS `sum_total`,cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`,cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`,cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`,cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`,cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2))) as decimal(10,4)) AS `percent`,cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil`,cast(((sum(`vcp`.`loading_time`) / sum(`vcp`.`working_time`)) * 100) as decimal(10,2)) AS `utilization_rate` from `v_calc_poe` `vcp` group by month(`vcp`.`tanggal`),`vcp`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_month_poe`  AS SELECT `vcp`.`tanggal` AS `tanggal`, `vcp`.`line_id` AS `line_id`, sum(`vcp`.`total_output`) AS `total_output`, cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2)) AS `sum_total`, cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`, cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`, cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`, cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`, cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2))) as decimal(10,4)) AS `percent`, cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (month(`v_calc_poe`.`tanggal`) = month(`vcp`.`tanggal`)) group by month(`v_calc_poe`.`tanggal`)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil`, cast(((sum(`vcp`.`loading_time`) / sum(`vcp`.`working_time`)) * 100) as decimal(10,2)) AS `utilization_rate` FROM `v_calc_poe` AS `vcp` GROUP BY month(`vcp`.`tanggal`), `vcp`.`line_id``line_id`  ;
 
 -- --------------------------------------------------------
 
@@ -6999,7 +7041,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_oee_daily`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_oee_daily`  AS   (select `oee`.`id` AS `id`,`oee`.`tanggal` AS `tanggal`,`oee`.`line_id` AS `line_id`,`oee`.`shift_id` AS `shift_id`,`mpo`.`txtbatchcode` AS `txtbatchcode`,`item`.`id` AS `item_id`,`item`.`ct` AS `ct`,sum(`oee`.`lamakejadian`) AS `working_time`,sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end)) AS `total_mi`,sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) AS `operating_time`,sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)) AS `total_sh`,(sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `loading_time`,((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `total_downtime`,sum(`oee`.`finish_good`) AS `fg`,sum(`oee`.`qc_sample`) AS `qc_sample`,sum(`oee`.`rework`) AS `rework`,cast(sum(`oee`.`reject`) as decimal(10,0)) AS `reject`,cast((sum(`oee`.`rework`) + sum(`oee`.`reject`)) as decimal(10,0)) AS `defect`,cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) AS `total_output`,cast((cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`,cast(((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - ((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`))) + cast(`oee`.`reject` as decimal(10,1))) / `item`.`ct`) as decimal(10,2)) AS `speed_loss`,cast(((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`) as decimal(10,2)) AS `defect_loss`,(((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end))) AS `downtime_loss`,(sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) AS `net_optime`,((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) AS `value_adding`,cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) / (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `avaibility_rate`,cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `performance_rate`,cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2)))) * 100) as decimal(10,2)) AS `quality_rate` from (((`oee` join `mplanorder` `mpo` on((`mpo`.`id` = `oee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`tanggal`,`oee`.`shift_id`,`mpo`.`id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_oee_daily`  AS SELECT `oee`.`id` AS `id`, `oee`.`tanggal` AS `tanggal`, `oee`.`line_id` AS `line_id`, `oee`.`shift_id` AS `shift_id`, `mpo`.`txtbatchcode` AS `txtbatchcode`, `item`.`id` AS `item_id`, `item`.`ct` AS `ct`, sum(`oee`.`lamakejadian`) AS `working_time`, sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end)) AS `total_mi`, sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) AS `operating_time`, sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)) AS `total_sh`, (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `loading_time`, ((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `total_downtime`, sum(`oee`.`finish_good`) AS `fg`, sum(`oee`.`qc_sample`) AS `qc_sample`, sum(`oee`.`rework`) AS `rework`, cast(sum(`oee`.`reject`) as decimal(10,0)) AS `reject`, cast((sum(`oee`.`rework`) + sum(`oee`.`reject`)) as decimal(10,0)) AS `defect`, cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) AS `total_output`, cast((cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`, cast(((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - ((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`))) + cast(`oee`.`reject` as decimal(10,1))) / `item`.`ct`) as decimal(10,2)) AS `speed_loss`, cast(((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`) as decimal(10,2)) AS `defect_loss`, (((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end))) AS `downtime_loss`, (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) AS `net_optime`, ((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) AS `value_adding`, cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) / (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `avaibility_rate`, cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `performance_rate`, cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2)))) * 100) as decimal(10,2)) AS `quality_rate` FROM (((`oee` join `mplanorder` `mpo` on((`mpo`.`id` = `oee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `oee`.`activity_id`))) GROUP BY `oee`.`tanggal`, `oee`.`shift_id`, `mpo`.`id``id`  ;
 
 -- --------------------------------------------------------
 
@@ -7008,7 +7050,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_oee_shift`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_oee_shift`  AS   (select `oee`.`id` AS `id`,`oee`.`tanggal` AS `tanggal`,`oee`.`line_id` AS `line_id`,`oee`.`shift_id` AS `shift_id`,`mpo`.`txtbatchcode` AS `txtbatchcode`,`item`.`ct` AS `ct`,sum(`oee`.`lamakejadian`) AS `working_time`,sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end)) AS `total_mi`,sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) AS `operating_time`,sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)) AS `total_sh`,(sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `loading_time`,((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `total_downtime`,sum(`oee`.`finish_good`) AS `fg`,sum(`oee`.`qc_sample`) AS `qc_sample`,sum(`oee`.`rework`) AS `rework`,cast(sum(`oee`.`reject`) as decimal(10,0)) AS `reject`,cast((sum(`oee`.`rework`) + sum(`oee`.`reject`)) as decimal(10,0)) AS `defect`,cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) AS `total_output`,cast((cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`,cast(((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - ((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`))) + cast(`oee`.`reject` as decimal(10,1))) / `item`.`ct`) as decimal(10,2)) AS `speed_loss`,cast(((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`) as decimal(10,2)) AS `defect_loss`,(((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end))) AS `downtime_loss`,(sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) AS `net_optime`,((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) AS `value_adding`,cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) / (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `avaibility_rate`,cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `performance_rate`,cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2)))) * 100) as decimal(10,2)) AS `quality_rate` from (((`oee` join `mplanorder` `mpo` on((`mpo`.`id` = `oee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `oee`.`activity_id`))) group by `oee`.`shift_id`,`oee`.`tanggal`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_oee_shift`  AS SELECT `oee`.`id` AS `id`, `oee`.`tanggal` AS `tanggal`, `oee`.`line_id` AS `line_id`, `oee`.`shift_id` AS `shift_id`, `mpo`.`txtbatchcode` AS `txtbatchcode`, `item`.`ct` AS `ct`, sum(`oee`.`lamakejadian`) AS `working_time`, sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end)) AS `total_mi`, sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) AS `operating_time`, sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)) AS `total_sh`, (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `loading_time`, ((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) AS `total_downtime`, sum(`oee`.`finish_good`) AS `fg`, sum(`oee`.`qc_sample`) AS `qc_sample`, sum(`oee`.`rework`) AS `rework`, cast(sum(`oee`.`reject`) as decimal(10,0)) AS `reject`, cast((sum(`oee`.`rework`) + sum(`oee`.`reject`)) as decimal(10,0)) AS `defect`, cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) AS `total_output`, cast((cast((((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + sum(`oee`.`reject`)) as decimal(10,0)) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) as decimal(10,2)) AS `actual_speed`, cast(((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - ((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`))) + cast(`oee`.`reject` as decimal(10,1))) / `item`.`ct`) as decimal(10,2)) AS `speed_loss`, cast(((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`) as decimal(10,2)) AS `defect_loss`, (((sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end))) - sum((case when (`mact`.`txtcategory` = 'mi') then `oee`.`lamakejadian` else 0 end))) AS `downtime_loss`, (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) AS `net_optime`, ((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) AS `value_adding`, cast(((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) / (sum(`oee`.`lamakejadian`) - sum((case when (`mact`.`txtcategory` = 'sh') then `oee`.`lamakejadian` else 0 end)))) * 100) as decimal(10,2)) AS `avaibility_rate`, cast((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) / sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) * 100) as decimal(10,2)) AS `performance_rate`, cast(((((sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2))) - ((cast(`oee`.`reject` as decimal(10,1)) + sum(`oee`.`rework`)) / `item`.`ct`)) / (sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end)) - cast((((`item`.`ct` * sum((case when (`mact`.`txtcategory` = 'pr') then `oee`.`lamakejadian` else 0 end))) - (((sum(`oee`.`finish_good`) + sum(`oee`.`qc_sample`)) + sum(`oee`.`rework`)) + cast(`oee`.`reject` as decimal(10,1)))) / `item`.`ct`) as decimal(10,2)))) * 100) as decimal(10,2)) AS `quality_rate` FROM (((`oee` join `mplanorder` `mpo` on((`mpo`.`id` = `oee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `oee`.`activity_id`))) GROUP BY `oee`.`shift_id`, `oee`.`tanggal``tanggal`  ;
 
 -- --------------------------------------------------------
 
@@ -7017,7 +7059,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_percent_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_percent_poe`  AS   (select `vpoe`.`tanggal` AS `tanggal`,`vpoe`.`line_id` AS `line_id`,sum(`vpoe`.`total_output`) AS `total`,`vpoe`.`oee` AS `oee`,(select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vpoe`.`tanggal`) group by `v_calc_poe`.`tanggal`) AS `sum_total` from `v_calc_poe` `vpoe` group by `vpoe`.`tanggal`,`vpoe`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_percent_poe`  AS SELECT `vpoe`.`tanggal` AS `tanggal`, `vpoe`.`line_id` AS `line_id`, sum(`vpoe`.`total_output`) AS `total`, `vpoe`.`oee` AS `oee`, (select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (`v_calc_poe`.`tanggal` = `vpoe`.`tanggal`) group by `v_calc_poe`.`tanggal`) AS `sum_total` FROM `v_calc_poe` AS `vpoe` GROUP BY `vpoe`.`tanggal`, `vpoe`.`line_id``line_id`  ;
 
 -- --------------------------------------------------------
 
@@ -7026,7 +7068,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_shift_oee`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_shift_oee`  AS   (select `moee`.`id` AS `id`,`moee`.`line_id` AS `line_id`,`moee`.`shift_id` AS `shift_id`,`moee`.`tanggal` AS `tanggal`,`mpo`.`txtbatchcode` AS `txtbatchcode`,`item`.`ct` AS `ct`,(sum(`moee`.`lamakejadian`) / 60) AS `working_time`,((sum(`moee`.`lamakejadian`) / 60) - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) AS `operating_time`,sum((case when (`mact`.`txtcategory` = 'mi') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_mi`,sum((case when (`mact`.`txtcategory` = 'sh') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_sh`,sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_downtime`,cast(((`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) / `item`.`ct`) as decimal(10,2)) AS `capacity`,cast((((`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) / `moee`.`working_time`) * 100) as decimal(10,2)) AS `avaibility_rate`,cast(((((`item`.`ct` / 60) * sum(`moee`.`output`)) / (`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)))) * 100) as decimal(10,2)) AS `performance_rate`,cast((((sum(`moee`.`output`) - sum(`moee`.`reject`)) / sum(`moee`.`output`)) * 100) as decimal(10,2)) AS `quality_rate`,cast((((`mpo`.`inttarget` / (`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)))) / `item`.`ct`) * 100) as decimal(10,2)) AS `utilization` from (((`moee` join `mplanorder` `mpo` on((`mpo`.`id` = `moee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `moee`.`activity_id`))) group by `moee`.`shift_id`,`moee`.`tanggal`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_shift_oee`  AS SELECT `moee`.`id` AS `id`, `moee`.`line_id` AS `line_id`, `moee`.`shift_id` AS `shift_id`, `moee`.`tanggal` AS `tanggal`, `mpo`.`txtbatchcode` AS `txtbatchcode`, `item`.`ct` AS `ct`, (sum(`moee`.`lamakejadian`) / 60) AS `working_time`, ((sum(`moee`.`lamakejadian`) / 60) - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) AS `operating_time`, sum((case when (`mact`.`txtcategory` = 'mi') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_mi`, sum((case when (`mact`.`txtcategory` = 'sh') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_sh`, sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)) AS `total_downtime`, cast(((`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) / `item`.`ct`) as decimal(10,2)) AS `capacity`, cast((((`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end))) / `moee`.`working_time`) * 100) as decimal(10,2)) AS `avaibility_rate`, cast(((((`item`.`ct` / 60) * sum(`moee`.`output`)) / (`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)))) * 100) as decimal(10,2)) AS `performance_rate`, cast((((sum(`moee`.`output`) - sum(`moee`.`reject`)) / sum(`moee`.`output`)) * 100) as decimal(10,2)) AS `quality_rate`, cast((((`mpo`.`inttarget` / (`moee`.`working_time` - sum((case when (`mact`.`txtcategory` <> 'pr') then (`moee`.`lamakejadian` / 60) else 0 end)))) / `item`.`ct`) * 100) as decimal(10,2)) AS `utilization` FROM (((`moee` join `mplanorder` `mpo` on((`mpo`.`id` = `moee`.`planorder_id`))) join `tb_m_item_parts` `item` on((`item`.`id` = `mpo`.`item_part_id`))) left join `mactivitycode` `mact` on((`mact`.`id` = `moee`.`activity_id`))) GROUP BY `moee`.`shift_id`, `moee`.`tanggal``tanggal`  ;
 
 -- --------------------------------------------------------
 
@@ -7035,7 +7077,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_week_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_week_poe`  AS   (select week(`vcp`.`tanggal`,0) AS `week`,monthname(`vcp`.`tanggal`) AS `month`,year(`vcp`.`tanggal`) AS `year`,`vcp`.`line_id` AS `line_id`,sum(`vcp`.`total_output`) AS `total_output`,cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2)) AS `sum_total`,cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`,cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`,cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`,cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`,cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2))) as decimal(10,2)) AS `percent`,cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil` from `v_calc_poe` `vcp` group by week(`vcp`.`tanggal`,0),`vcp`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_week_poe`  AS SELECT week(`vcp`.`tanggal`,0) AS `week`, monthname(`vcp`.`tanggal`) AS `month`, year(`vcp`.`tanggal`) AS `year`, `vcp`.`line_id` AS `line_id`, sum(`vcp`.`total_output`) AS `total_output`, cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2)) AS `sum_total`, cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`, cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`, cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`, cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`, cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2))) as decimal(10,2)) AS `percent`, cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (week(`v_calc_poe`.`tanggal`,0) = week(`vcp`.`tanggal`,0)) group by week(`v_calc_poe`.`tanggal`,0)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil` FROM `v_calc_poe` AS `vcp` GROUP BY week(`vcp`.`tanggal`,0), `vcp`.`line_id``line_id`  ;
 
 -- --------------------------------------------------------
 
@@ -7044,7 +7086,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_year_poe`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_year_poe`  AS   (select `vcp`.`tanggal` AS `tanggal`,`vcp`.`line_id` AS `line_id`,sum(`vcp`.`total_output`) AS `total_output`,cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2)) AS `sum_total`,cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`,cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`,cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`,cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`,cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2))) as decimal(10,4)) AS `percent`,cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil`,cast(((sum(`vcp`.`loading_time`) / sum(`vcp`.`working_time`)) * 100) as decimal(10,2)) AS `utilization_rate` from `v_calc_poe` `vcp` group by year(`vcp`.`tanggal`),`vcp`.`line_id`)  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_year_poe`  AS SELECT `vcp`.`tanggal` AS `tanggal`, `vcp`.`line_id` AS `line_id`, sum(`vcp`.`total_output`) AS `total_output`, cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2)) AS `sum_total`, cast(((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * 100) as decimal(10,2)) AS `ar`, cast(((sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`)) * 100) as decimal(10,2)) AS `pr`, cast(((sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`)) * 100) as decimal(10,2)) AS `qr`, cast(((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100) as decimal(10,2)) AS `oee`, cast((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2))) as decimal(10,4)) AS `percent`, cast(((sum(`vcp`.`total_output`) / cast((select sum(`v_calc_poe`.`total_output`) from `v_calc_poe` where (year(`v_calc_poe`.`tanggal`) = year(`vcp`.`tanggal`)) group by year(`v_calc_poe`.`tanggal`)) as decimal(10,2))) * ((((sum(`vcp`.`operating_time`) / sum(`vcp`.`loading_time`)) * (sum(`vcp`.`net_optime`) / sum(`vcp`.`operating_time`))) * (sum(`vcp`.`value_adding`) / sum(`vcp`.`net_optime`))) * 100)) as decimal(10,2)) AS `hasil`, cast(((sum(`vcp`.`loading_time`) / sum(`vcp`.`working_time`)) * 100) as decimal(10,2)) AS `utilization_rate` FROM `v_calc_poe` AS `vcp` GROUP BY year(`vcp`.`tanggal`), `vcp`.`line_id``line_id`  ;
 
 --
 -- Indexes for dumped tables
@@ -7117,7 +7159,8 @@ ALTER TABLE `mconfig`
 --
 ALTER TABLE `mdailyactivities`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_daily_line_id_to_mline` (`line_id`);
+  ADD KEY `FK_daily_line_id_to_mline` (`line_id`),
+  ADD KEY `FK_daily_activity_id_to_mactivity` (`activity_id`);
 
 --
 -- Indexes for table `menu`
@@ -7381,247 +7424,247 @@ ALTER TABLE `tr_topic`
 -- AUTO_INCREMENT for table `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `jobs`
 --
 ALTER TABLE `jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `loghistory`
 --
 ALTER TABLE `loghistory`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=457;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=499;
 
 --
 -- AUTO_INCREMENT for table `mactivitycode`
 --
 ALTER TABLE `mactivitycode`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=877;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=877;
 
 --
 -- AUTO_INCREMENT for table `massign_line`
 --
 ALTER TABLE `massign_line`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `mbroker`
 --
 ALTER TABLE `mbroker`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `mconfig`
 --
 ALTER TABLE `mconfig`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `mdailyactivities`
 --
 ALTER TABLE `mdailyactivities`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `menu`
 --
 ALTER TABLE `menu`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `mkpi`
 --
 ALTER TABLE `mkpi`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `mlevels`
 --
 ALTER TABLE `mlevels`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `mline`
 --
 ALTER TABLE `mline`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `mmachines`
 --
 ALTER TABLE `mmachines`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `moee`
 --
 ALTER TABLE `moee`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `mplanorder`
 --
 ALTER TABLE `mplanorder`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `mproduct`
 --
 ALTER TABLE `mproduct`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `mtopic`
 --
 ALTER TABLE `mtopic`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `musers`
 --
 ALTER TABLE `musers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `mworkingtime`
 --
 ALTER TABLE `mworkingtime`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `m_packing_spec`
 --
 ALTER TABLE `m_packing_spec`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `oee`
 --
 ALTER TABLE `oee`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `oee_drier`
 --
 ALTER TABLE `oee_drier`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2123;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2123;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `submenu`
 --
 ALTER TABLE `submenu`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_breakdown`
 --
 ALTER TABLE `tbl_tr_breakdown`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_checkman_d`
 --
 ALTER TABLE `tbl_tr_checkman_d`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_checkman_h`
 --
 ALTER TABLE `tbl_tr_checkman_h`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_kanban_pw_in`
 --
 ALTER TABLE `tbl_tr_kanban_pw_in`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=150;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=150;
 
 --
 -- AUTO_INCREMENT for table `tbl_tr_kanban_pw_out`
 --
 ALTER TABLE `tbl_tr_kanban_pw_out`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tb_m_bom`
 --
 ALTER TABLE `tb_m_bom`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=515;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=515;
 
 --
 -- AUTO_INCREMENT for table `tb_m_breakdown`
 --
 ALTER TABLE `tb_m_breakdown`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tb_m_item_parts`
 --
 ALTER TABLE `tb_m_item_parts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
 
 --
 -- AUTO_INCREMENT for table `tb_m_kanban`
 --
 ALTER TABLE `tb_m_kanban`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1038;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1038;
 
 --
 -- AUTO_INCREMENT for table `tb_m_pos`
 --
 ALTER TABLE `tb_m_pos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `tb_order`
 --
 ALTER TABLE `tb_order`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tb_t_kanban_in`
 --
 ALTER TABLE `tb_t_kanban_in`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tb_t_kanban_out`
 --
 ALTER TABLE `tb_t_kanban_out`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tr_dailyactivity`
 --
 ALTER TABLE `tr_dailyactivity`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tr_kpi`
 --
 ALTER TABLE `tr_kpi`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -7664,6 +7707,7 @@ ALTER TABLE `massign_line`
 -- Constraints for table `mdailyactivities`
 --
 ALTER TABLE `mdailyactivities`
+  ADD CONSTRAINT `FK_daily_activity_id_to_mactivity` FOREIGN KEY (`activity_id`) REFERENCES `mactivitycode` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_daily_line_id_to_mline` FOREIGN KEY (`line_id`) REFERENCES `mline` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -7715,8 +7759,8 @@ ALTER TABLE `tr_dailyactivity`
 -- Constraints for table `tr_kpi`
 --
 ALTER TABLE `tr_kpi`
-  ADD CONSTRAINT `FK_tr_kpi_to_mkpi_id` FOREIGN KEY (`kpi_id`) REFERENCES `mkpi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `Fk_tr_kpi_line_to_mline_id` FOREIGN KEY (`line_id`) REFERENCES `mline` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `Fk_tr_kpi_line_to_mline_id` FOREIGN KEY (`line_id`) REFERENCES `mline` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_tr_kpi_to_mkpi_id` FOREIGN KEY (`kpi_id`) REFERENCES `mkpi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tr_topic`
