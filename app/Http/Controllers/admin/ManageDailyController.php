@@ -18,9 +18,12 @@ class ManageDailyController extends Controller
             $data = Daily::join('mactivitycode AS mact', 'mact.id', '=', 'mdailyactivities.activity_id')
                 ->join('mline', 'mline.id', '=', 'mdailyactivities.line_id')
                 ->orderBy('mdailyactivities.id', 'DESC')
-                ->get(['mdailyactivities.*', 'mline.txtlinename', 'mact.txtdescription']);
+                ->get(['mdailyactivities.*', 'mline.txtlinename', 'mact.txtdescription', 'mact.txtactivitycode']);
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('activity', function ($row) {
+                    return $row->txtactivitycode.' - '.$row->txtdescription;
+                })
                 ->addColumn('action', function ($row) {
                     $btn_edit =
                         '<a type="button" class="btn btn-sm btn-square btn-success" onclick="edit(' .
@@ -33,7 +36,7 @@ class ManageDailyController extends Controller
                     $btn = $btn_edit . ' ' . $btn_delete;
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['activity', 'action'])
                 ->make(true);
         } else {
             return view('pages.admin.daily-activities', [
@@ -109,6 +112,7 @@ class ManageDailyController extends Controller
     {
         $data = Daily::find($id);
         if ($data) {
+            $data->delete();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Daily Activity Deleted Successfully'
