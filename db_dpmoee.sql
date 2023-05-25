@@ -29,11 +29,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_durasi` (IN `line` BIGINT, I
 		declare last_start time;
 		declare act_id bigint;
 		declare okp VARCHAR(64);
-		SELECT `id` into okp FROM mplanorder 
+		SELECT `id` into okp FROM mplanorder
 			WHERE line_id = line
-			AND is_released IS NOT NULL 
-			AND is_completed IS NULL 
-			ORDER BY is_released ASC 
+			AND is_released IS NOT NULL
+			AND is_completed IS NULL
+			ORDER BY is_released ASC
 			LIMIT 1;
 		SELECT `finish` INTO last_start FROM moee WHERE line_id = line ORDER BY id DESC LIMIT 1;
 		SELECT `id` into act_id from mactivitycode
@@ -43,13 +43,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_durasi` (IN `line` BIGINT, I
 		if(last_start is null OR last_start = '') then
 			IF(new_status = 1) THEN
 				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
-				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'), 
-				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, act_id);	
+				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'),
+				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, act_id);
 			ELSE
 				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id) VALUES
-				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'), 
-				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, 14);	
-			END IF;		
+				(line, shift_id, DATE_FORMAT(NOW(), '%Y-%m-%d'), DATE_FORMAT(NOW(), '%k:%i:%s'),
+				ADDTIME(DATE_FORMAT(NOW(), '%k:%i:%s'), 1), 1, okp, 14);
+			END IF;
 		else
 			IF(new_status = 1) THEN
 				INSERT INTO moee (line_id, shift_id, tanggal, `start`, `finish`, lamakejadian, planorder_id, activity_id) VALUES
@@ -65,17 +65,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `oee_shifts` (OUT `shift_id` BIGINT)
 		declare hasil1 bigint;
 		SELECT id into hasil1
 		FROM mworkingtime
-		WHERE TIMESTAMP(CURDATE(), TIME(NOW())) 
+		WHERE TIMESTAMP(CURDATE(), TIME(NOW()))
 		BETWEEN TIMESTAMP(CURDATE(), tmstart) AND TIMESTAMP(ADDDATE(CURDATE(), intinterval), tmfinish);
 		IF(hasil1 is not null) then
 			SELECT id INTO shift_id
 			FROM mworkingtime
-			WHERE TIMESTAMP(CURDATE(), TIME(NOW())) 
+			WHERE TIMESTAMP(CURDATE(), TIME(NOW()))
 			BETWEEN TIMESTAMP(CURDATE(), tmstart) AND TIMESTAMP(ADDDATE(CURDATE(), intinterval), tmfinish);
 		else
 			SELECT id INTO shift_id
 			FROM mworkingtime
-			WHERE TIMESTAMP(CURDATE(), TIME(NOW())) 
+			WHERE TIMESTAMP(CURDATE(), TIME(NOW()))
 			BETWEEN TIMESTAMP(SUBDATE(CURDATE(), INTERVAL intinterval DAY), tmstart) AND TIMESTAMP(CURDATE(), tmfinish);
 		end if;
 	END$$
@@ -837,7 +837,7 @@ CREATE TRIGGER `trigger_oee` BEFORE INSERT ON `loghistory` FOR EACH ROW BEGIN
 		END if;
 	ELSEIF(new.name = 'COUNTING') THEN
 		call update_counting(@line_id, new.status);
-	ELSE 
+	ELSE
 		CALL update_reject(@line_id, new.status);
 	END if;
     END
@@ -2096,14 +2096,14 @@ CREATE TRIGGER `trigger_planorder` BEFORE INSERT ON `mplanorder` FOR EACH ROW BE
 	SET @datecode = CONVERT(LEFT(SUBSTRING_INDEX((SELECT txtbatchcode FROM `mplanorder` ORDER BY txtbatchcode DESC LIMIT 1),"-",-1), 6), UNSIGNED);
 	SET @hitung = CONVERT(SUBSTR(SUBSTRING_INDEX((SELECT txtbatchcode FROM `mplanorder` ORDER BY txtbatchcode DESC LIMIT 1),"-",-1), 7, 4), UNSIGNED) + 1;
 	    IF (LEFT(@tgl, 4)  = LEFT(@datecode, 4)) THEN
-		IF (@hitung < 10) THEN 
+		IF (@hitung < 10) THEN
 		    SET new.txtbatchcode = CONCAT('DPM-ORDER-', @tgl,'00',@hitung);
-		ELSEIF (@hitung < 100) THEN 
+		ELSEIF (@hitung < 100) THEN
 		    SET new.txtbatchcode = CONCAT('DPM-ORDER-', @tgl,'0',@hitung);
 		ELSE
 		    SET new.txtbatchcode = CONCAT('DPM-ORDER-', @tgl, @hitung);
 		END IF;
-	    ELSE 
+	    ELSE
 		SET new.txtbatchcode = CONCAT("DPM-ORDER-",@tgl,"001");
 	    END IF;
     END
@@ -2183,7 +2183,7 @@ CREATE TABLE `musers` (
   `txtphoto` varchar(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT 'default.jpg',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `musers`
@@ -2248,7 +2248,7 @@ CREATE TABLE `m_packing_spec` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `updated_by` bigint DEFAULT NULL,
   `created_by` bigint DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

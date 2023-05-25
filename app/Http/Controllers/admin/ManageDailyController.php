@@ -124,4 +124,7 @@ class ManageDailyController extends Controller
             ], 404);
         }
     }
+    public function runDailyActivities(){
+        
+    }
 }
