@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->call('App\Http\Controllers\admin\ManageShiftController@getResetCount')->everyMinute();
+        $schedule->call('App\Http\Controllers\admin\ManageDailyController@runDailyActivities')->everyMinute();
     }
 
     /**

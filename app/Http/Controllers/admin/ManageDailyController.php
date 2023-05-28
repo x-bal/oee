@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\DailyActivityModel as Daily;
 use App\Models\WorkingTimeModel as Working;
 use App\Models\ActivityModel as Activity;
@@ -125,6 +126,21 @@ class ManageDailyController extends Controller
         }
     }
     public function runDailyActivities(){
-        
+        $data = Daily::where('LEFT(`tmstart`, 5)', date('H:i'))->get();
+        if ($data) {
+            foreach ($data as $item) {
+                $start = strtotime($item->tmstart);
+                $finish = strtotime($item->tmfinish);
+                $diff = $finish - $start;
+                DB::table('moee')->insert([
+                    'line_id' => $item->line_id,
+                    'activity_id' => $item->activity_id,
+                    'tanggal' => date('Y-m-d'),
+                    'tmstart' => $start,
+                    'tmfinish' => $finish,
+                    'lamakejadian' => $diff
+                ]);
+            }
+        }
     }
 }
