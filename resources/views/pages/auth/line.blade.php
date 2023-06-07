@@ -8,10 +8,10 @@
         <!-- BEGIN navbar-header -->
         <div class="navbar-header">
             <a href="/" class="navbar-brand">
-                <img src="{{ asset('assets/img/logo/kalbe.png') }}" width="30" height="30"
+                <img src="{{ asset('assets/img/logo/dharma.png') }}" width="30" height="30"
                     class="d-inline-block align-top" alt="">
-                <span class="navbar-logo"></span> <strong>Kalbe </strong> <span
-                    style="color: #39e600;margin-left:5px;">Nutritionals</span></a>
+                <span class="navbar-logo"></span> <strong>Dharma </strong> <span
+                    style="color: #39e600;margin-left:5px;">Polimetal</span></a>
         </div>
         <!-- END navbar-header -->
         <!-- BEGIN header-nav -->
@@ -66,7 +66,7 @@
         </ol>
         <!-- END breadcrumb -->
         <!-- BEGIN page-header -->
-        <h1 class="page-header">PT Kalbe Morinaga Indonesia <br> <small>OEES || Overall Equipment Effectiveness
+        <h1 class="page-header">PT Dharma Polimetal <br> <small>OEES || Overall Equipment Effectiveness
                 System</small>
         </h1>
         <!-- END page-header -->
@@ -94,8 +94,7 @@
                             @csrf
                             <h4 class="title">
                                 {{-- <strong>KALBE</strong><span style="color: #84c425;"> Nutritionals</span> --}}
-                                <img src="{{ asset('assets/img/logo/dharma.png') }}" alt="login-kalbe-logo"
-                                    width="256">
+                                <img src="{{ asset('assets/img/logo/dharma.png') }}" alt="login-kalbe-logo" width="256">
                             </h4>
                             <p class="description">Login here Using Username & Password</p>
                             <div class="form-group">
@@ -119,10 +118,12 @@
         </div>
     @endsection
     @push('script')
-    <script src="{{ asset('assets/plugins/chart.js/dist/chartjs-plugin-datalabels.min.js') }}"></script>
+        <script src="{{ asset('assets/plugins/chart.js/dist/chartjs-plugin-datalabels.min.js') }}"></script>
         <script>
             let year = "{{ empty(Request::input('year')) ? date('Y') : Request::input('year') }}";
             let month = "{{ empty(Request::input('month')) ? '' : Request::input('month') }}";
+            let oee = @json($actual_oee);
+
             function ajaxLink(link) {
                 let ajaxLink = link.replace(':year', year);
                 return ajaxLink;
@@ -175,7 +176,9 @@
                 prodByop.addColorStop(0, '#2596be');
                 prodByop.addColorStop(1, '#85eabd');
                 const labels = ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'];
-                const ur = oee?[0, 0, (((oee.ar/100)*(oee.pr/100)*(oee.qr/100)*(oee.utilization/100))*100).toFixed(2)]:[0,0,0];
+                const ur = oee ? [0, 0, (((oee.ar / 100) * (oee.pr / 100) * (oee.qr / 100) * (oee.utilization / 100)) * 100)
+                    .toFixed(2)
+                ] : [0, 0, 0];
                 const data = {
                     labels: labels,
                     datasets: [{
@@ -297,6 +300,7 @@
                 };
                 var barChart = new Chart(ctx3, config);
             }
+
             function gritter(title, text, status) {
                 $.gritter.add({
                     title: title,
@@ -311,7 +315,7 @@
                 handleOeeLine();
                 $.get("{{ route('oee.data.line') }}", {
                     'line_id': "{{ Request::segment(2) }}"
-                }, function(response){
+                }, function(response) {
                     let data = response.oee;
                     handleOverallChart(data.avaibility_rate, data.performance_rate, data.quality_rate);
                 })
