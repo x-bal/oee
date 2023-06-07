@@ -38,11 +38,16 @@
 <script>
     let url = "";
     let method = "";
+    let oee = @json($oee);
+    console.log(hitungOee());
     function getUrl(){
         return url;
     }
     function getMethod(){
         return method;
+    }
+    function hitungOee(){
+        return oee.avaibility_rate*oee.performance_rate*oee.quality_rate;
     }
     var handleOverallChart = function() {
         var ctx = document.getElementById('oee-chart').getContext('2d');
@@ -52,7 +57,7 @@
             data: {
                 labels: ['OEE'],
                 datasets: [{
-                    data: [93, 7],
+                    data: [hitungOee(), 100-hitungOee()],
                     backgroundColor: ['#F57C00', '#EEE', '#C70039'],
                     label: 'OEE'
                 }]
@@ -81,7 +86,7 @@
         prodByop.addColorStop(0, '#2596be');
         prodByop.addColorStop(1, '#85eabd');
         const labels = ['Avaibility', 'Performance', 'Quality', 'Utilization'];
-        const ur = [86, 97, 95, 95];
+        const ur = [oee.avaibility_rate, oee.performance_rate, oee.quality_rate, oee.utilization_rate];
         const data = {
             labels: labels,
             datasets: [{
@@ -178,6 +183,23 @@
         <div class="col-12">
             <div class="panel">
                 <div class="panel-body">
+                    <div class="row mb-3">
+                        <form action="" method="get" class="row row-cols-lg-auto align-items-center">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <select name="line_id" id="lineID" class="form-control">
+                                        <option selected disabled>Pilih Line</option>
+                                        @foreach ($lines as $item)
+                                            <option value="{{ $item->id }}">{{ $item->txtlinename }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-success btn-sm">Change</button>
+                            </div>
+                        </form>
+                    </div>
                     <div class="row">
                         <!-- KOLOM 1 -->
                         <div class="col-3">

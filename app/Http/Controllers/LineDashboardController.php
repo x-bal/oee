@@ -49,4 +49,12 @@ class LineDashboardController extends Controller
             'lines' => Line::all(),
         ]);
     }
+    public function getOeeChart(Request $request)
+    {
+        $oee = DB::table('v_shift_oee')->where('line_id', $request->line_id)->orderBy('id', 'DESC')->first();
+        return response()->json([
+            'status' => 'success',
+            'oee' => $oee
+        ], 200);
+    }
 }

@@ -64,7 +64,7 @@
             });
         }
         //AVERAGE OVERALL OEE CHART
-        var handleOverallChart = function() {
+        var handleOverallChart = function(ar, pr, qr) {
             var ctx = document.getElementById('overall-chart').getContext('2d');
             new Chart(ctx, {
                 type: 'doughnut',
@@ -72,7 +72,7 @@
                 data: {
                     labels: ['AR', 'PR', 'QR'],
                     datasets: [{
-                        data: [oee.ar, oee.pr, oee.qr],
+                        data: [ar, pr, qr],
                         backgroundColor: ['#388E3C', '#3D5AFE', '#C70039'],
                         borderWidth: 2,
                         label: 'OEE'
@@ -110,7 +110,7 @@
                     data: ur,
                     backgroundColor: urBar,
                     order: 1
-                }, ]
+                }]
             };
             const config = {
                 type: 'bar',
@@ -197,7 +197,7 @@
                     data: ur,
                     backgroundColor: urBar,
                     order: 1
-                }, ]
+                }]
             };
             const config = {
                 type: 'bar',
@@ -225,10 +225,15 @@
             var barChart = new Chart(ctx3, config);
         }
         $(document).ready(function() {
-            handleOverallChart();
             handleOeeShift();
             handleOeeMachine();
             handleOeeLine();
+            $.get("{{ route('oee.data.line') }}", {
+                'line_id': "{{ Request::segment(3) }}"
+            }, function(response){
+                let data = response.oee;
+                handleOverallChart(data.avaibility_rate, data.performance_rate, data.quality_rate);
+            })
             $.ajax({
                 url: "{{ route('chart.poe') }}",
                 data: {

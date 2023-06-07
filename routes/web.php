@@ -90,6 +90,7 @@ Route::get('/viewqr', [UserController::class, 'getMyQr'])->name(
 Route::get('/viewqr/change', [UserController::class, 'getChangeQr'])->name(
     'view.qr.change'
 );
+Route::get('oee/line', [ViewLine::class, 'getOeeChart'])->name('oee.data.line');
 
 //Authenticated User
 Route::group(['middleware' => 'auth'], function () {

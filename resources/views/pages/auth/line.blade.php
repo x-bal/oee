@@ -123,7 +123,6 @@
         <script>
             let year = "{{ empty(Request::input('year')) ? date('Y') : Request::input('year') }}";
             let month = "{{ empty(Request::input('month')) ? '' : Request::input('month') }}";
-            let oee = @json($actual_oee);
             function ajaxLink(link) {
                 let ajaxLink = link.replace(':year', year);
                 return ajaxLink;
@@ -138,7 +137,7 @@
                 });
             }
             //AVERAGE OVERALL OEE CHART
-            var handleOverallChart = function() {
+            var handleOverallChart = function(ar, pr, qr) {
                 var ctx = document.getElementById('overall-chart').getContext('2d');
                 new Chart(ctx, {
                     type: 'doughnut',
@@ -146,11 +145,7 @@
                     data: {
                         labels: ['AR', 'PR', 'QR'],
                         datasets: [{
-<<<<<<< HEAD
-                            data: [97, 95, 99],
-=======
-                            data: oee?[oee.ar, oee.pr, oee.qr]:[90,85,92],
->>>>>>> 445a60842b123ce4beff7a07246b38f6e7768584
+                            data: [ar, pr, qr],
                             backgroundColor: ['#388E3C', '#3D5AFE', '#C70039'],
                             borderWidth: 2,
                             label: 'OEE'
@@ -180,11 +175,7 @@
                 prodByop.addColorStop(0, '#2596be');
                 prodByop.addColorStop(1, '#85eabd');
                 const labels = ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'];
-<<<<<<< HEAD
-                const ur = [80, 80, 96];
-=======
                 const ur = oee?[0, 0, (((oee.ar/100)*(oee.pr/100)*(oee.qr/100)*(oee.utilization/100))*100).toFixed(2)]:[0,0,0];
->>>>>>> 445a60842b123ce4beff7a07246b38f6e7768584
                 const data = {
                     labels: labels,
                     datasets: [{
@@ -315,10 +306,15 @@
                 });
             }
             $(document).ready(function() {
-                handleOverallChart();
                 handleOeeShift();
                 handleOeeMachine();
                 handleOeeLine();
+                $.get("{{ route('oee.data.line') }}", {
+                    'line_id': "{{ Request::segment(2) }}"
+                }, function(response){
+                    let data = response.oee;
+                    handleOverallChart(data.avaibility_rate, data.performance_rate, data.quality_rate);
+                })
                 $.ajax({
                     url: "{{ route('chart.poe') }}",
                     data: {
