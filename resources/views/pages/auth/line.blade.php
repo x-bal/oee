@@ -146,7 +146,7 @@
                     data: {
                         labels: ['AR', 'PR', 'QR'],
                         datasets: [{
-                            data: [ar, pr, qr],
+                            data: [(ar ? ar : 0), (pr ? pr : 0), (qr ? qr : 0)],
                             backgroundColor: ['#388E3C', '#3D5AFE', '#C70039'],
                             borderWidth: 2,
                             label: 'OEE'
