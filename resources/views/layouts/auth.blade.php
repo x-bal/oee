@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>@yield('title') | Dharma Polimetal</title>
+    <title>@yield('title')</title>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
     <meta content="" name="description" />
     <meta content="" name="author" />
-    <link rel="icon" type="image/x-icon" href="{{ asset('dharma.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('k_logo.ico') }}">
 
     <!-- ================== BEGIN core-css ================== -->
     <link href="{{ asset('assets/css/vendor.min.css') }}" rel="stylesheet" />

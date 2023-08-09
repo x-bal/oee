@@ -47,7 +47,9 @@ Route::post('/chart-ur', [AuthController::class, 'getChartUR'])->name(
 Route::post('/login', [AuthController::class, 'postLogin'])->name(
     'auth.post.login'
 );
-
+Route::post('/shift-oee', [ViewLine::class, 'getOeeShift'])->name('chart.shift.oee');
+Route::post('/line-oee', [ViewLine::class, 'getOeeLine'])->name('chart.line.oee');
+Route::post('/line-output', [ViewLine::class, 'getlineOutput'])->name('chart.line.output');
 //Qr Login
 Route::group(['prefix' => 'qr'], function () {
     Route::get('/login', [QrLoginController::class, 'getIndex'])->name(

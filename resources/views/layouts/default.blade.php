@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
-    <link rel="icon" type="image/x-icon" href="{{ asset('dharma.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('k_logo.ico') }}">
 	@include('includes.head')
 </head>
 @php

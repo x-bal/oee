@@ -39,7 +39,7 @@
         <div class="panel bg-light-200" data-sortable-id="index-1">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    Average Overall By Machine
+                    Output/Product
                 </h3>
             </div>
             <div class="panel-body">

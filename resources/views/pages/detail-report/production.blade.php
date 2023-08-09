@@ -49,121 +49,101 @@
     function hitungOee(){
         return oee.avaibility_rate*oee.performance_rate*oee.quality_rate;
     }
-    var handleOverallChart = function() {
-        var ctx = document.getElementById('oee-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            plugins: [ChartDataLabels],
-            data: {
-                labels: ['OEE'],
-                datasets: [{
-                    data: [hitungOee(), 100-hitungOee()],
-                    backgroundColor: ['#F57C00', '#EEE', '#C70039'],
-                    label: 'OEE'
-                }]
-            },
-            options: {
-                responsive: true,
-                aspectRatio: 1.3,
-                plugins: {
-                    datalabels: {
-                        color: 'white',
-                        font: {
-                            weight: 'bold'
-                        }
-                    },
+    var overallChart = new Chart(document.getElementById('oee-chart').getContext('2d'), {
+        type: 'doughnut',
+        plugins: [ChartDataLabels],
+        data: {
+            labels: ['OEE'],
+            datasets: [{
+                data: [hitungOee(), 100-hitungOee()],
+                backgroundColor: ['#F57C00', '#EEE', '#C70039'],
+                label: 'OEE'
+            }]
+        },
+        options: {
+            responsive: true,
+            aspectRatio: 1.3,
+            plugins: {
+                datalabels: {
+                    color: 'white',
+                    font: {
+                        weight: 'bold'
+                    }
+                },
+            }
+        },
+    })
+    //AVERAGE OVERALL BY SHIFTS
+    var ctx2 = document.getElementById('arprqr-chart').getContext('2d');
+    var BarArPrQr = ctx2.createLinearGradient(0, 0, 200, 0);
+        BarArPrQr.addColorStop(0, 'blue');
+        BarArPrQr.addColorStop(1, '#00cc00');
+    const dataArPrQr = {
+        labels: ['Avaibility', 'Performance', 'Quality', 'Utilization'],
+        datasets: [{
+            label: 'OEE',
+            data: [oee.avaibility_rate, oee.performance_rate, oee.quality_rate, oee.utilization_rate],
+            backgroundColor: BarArPrQr,
+            order: 1
+        }, ]
+    };
+    const configArPrQr = {
+        type: 'bar',
+        data: dataArPrQr,
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                datalabels: {
+                    color: 'white',
+                    font: {
+                        weight: 'bold'
+                    }
                 }
             },
-        })
-    }
+            indexAxis: 'y'
+        },
+    };
+    var arprqrChart = new Chart(ctx2, configArPrQr);
     //AVERAGE OVERALL BY SHIFTS
-    var handleArPrQr = function() {
-        var ctx3 = document.getElementById('arprqr-chart').getContext('2d');
-        var urBar = ctx3.createLinearGradient(0, 0, 200, 0);
+    var ctx3 = document.getElementById('shifts-chart').getContext('2d');
+    var urBar = ctx3.createLinearGradient(0, 0, 200, 0);
         urBar.addColorStop(0, 'blue');
         urBar.addColorStop(1, '#00cc00');
-        var prodByop = ctx3.createLinearGradient(0, 0, 200, 0);
-        prodByop.addColorStop(0, '#2596be');
-        prodByop.addColorStop(1, '#85eabd');
-        const labels = ['Avaibility', 'Performance', 'Quality', 'Utilization'];
-        const ur = [oee.avaibility_rate, oee.performance_rate, oee.quality_rate, oee.utilization_rate];
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'OEE',
-                data: ur,
-                backgroundColor: urBar,
-                order: 1
-            }, ]
-        };
-        const config = {
-            type: 'bar',
-            data: data,
-            plugins: [ChartDataLabels],
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    datalabels: {
-                        color: 'white',
-                        font: {
-                            weight: 'bold'
-                        }
-                    }
+    const dataShift = {
+        labels: ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'],
+        datasets: [{
+            label: 'OEE By Shifts',
+            data: [0, 0, 0],
+            backgroundColor: urBar,
+            order: 1
+        }, ]
+    };
+    const configShift = {
+        type: 'bar',
+        data: dataShift,
+        plugins: [ChartDataLabels],
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
                 },
-                indexAxis: 'y'
-            },
-        };
-        var barChart = new Chart(ctx3, config);
-    }
-    //AVERAGE OVERALL BY SHIFTS
-    var handleOeeShift = function() {
-        var ctx3 = document.getElementById('shifts-chart').getContext('2d');
-        var urBar = ctx3.createLinearGradient(0, 0, 200, 0);
-        urBar.addColorStop(0, 'blue');
-        urBar.addColorStop(1, '#00cc00');
-        var prodByop = ctx3.createLinearGradient(0, 0, 200, 0);
-        prodByop.addColorStop(0, '#2596be');
-        prodByop.addColorStop(1, '#85eabd');
-        const labels = ['SHIFT 3', 'SHIFT 2', 'SHIFT 1'];
-        const ur = [0, 0, 98];
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'OEE By Shifts',
-                data: ur,
-                backgroundColor: urBar,
-                order: 1
-            }, ]
-        };
-        const config = {
-            type: 'bar',
-            data: data,
-            plugins: [ChartDataLabels],
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    datalabels: {
-                        color: 'white',
-                        font: {
-                            weight: 'bold'
-                        }
+                datalabels: {
+                    color: 'white',
+                    font: {
+                        weight: 'bold'
                     }
-                },
-                indexAxis: 'y'
+                }
             },
-        };
-        var barChart = new Chart(ctx3, config);
-    }
+            indexAxis: 'y'
+        },
+    };
+    var shiftChart = new Chart(ctx3, configShift);
     $(document).ready(function(){
-        handleOverallChart();
-        handleArPrQr();
-        handleOeeShift();
     })
 </script>
 @endpush
@@ -175,7 +155,7 @@
     </ol>
     <!-- END breadcrumb -->
     <!-- BEGIN page-header -->
-    <h1 class="page-header">PT Dharma Polimetal <br> <small>OEES || Overall Equipment Effectiveness System</small>
+    <h1 class="page-header">Kelola Biz <br> <small>OEES || Overall Equipment Effectiveness System</small>
     </h1>
     <!-- END page-header -->
     <!-- BEGIN row -->
@@ -208,9 +188,9 @@
                                     <h4 class="panel-title">Avaibility</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Planned Production Time</span><span class="float-end">455 min</span><br>
-                                    <span class="float-start">Actual Runtime</span><span class="float-end">390 min</span><br>
-                                    <span class="float-start">Unplanned Downtime</span><span class="float-end">65 min</span>
+                                    <span class="float-start">Planned Production Time</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Actual Runtime</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Unplanned Downtime</span><span class="float-end">0 min</span>
                                 </div>
                             </div>
                             <div class="panel panel-inverse">
@@ -218,8 +198,8 @@
                                     <h4 class="panel-title">Performance</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Operating Time</span><span class="float-end">390 min</span><br>
-                                    <span class="float-start">Actual CT</span><span class="float-end">380 min</span>
+                                    <span class="float-start operating-time">Operating Time</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Actual CT</span><span class="float-end">0 min</span>
                                 </div>
                             </div>
                             <div class="panel panel-inverse">
@@ -227,8 +207,8 @@
                                     <h4 class="panel-title">Quality</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Actual QTY</span><span class="float-end">200 pcs</span><br>
-                                    <span class="float-start">Reject QTY</span><span class="float-end">10 pcs</span>
+                                    <span class="float-start actual-qty">Actual QTY</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Reject QTY</span><span class="float-end">0 pcs</span>
                                 </div>
                             </div>
                             <div class="panel panel-inverse">
@@ -236,8 +216,8 @@
                                     <h4 class="panel-title">Utilization</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Planning Production</span><span class="float-end">190 pcs</span><br>
-                                    <span class="float-start">Capacity Production</span><span class="float-end">200 pcs</span>
+                                    <span class="float-start">Planning Production</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Capacity Production</span><span class="float-end">0 pcs</span>
                                 </div>
                             </div>
                         </div>
@@ -274,12 +254,12 @@
                                     <h4 class="panel-title">Downtime Machine Stoppage</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Change Nozle</span><span class="float-end">20 min</span><br>
-                                    <span class="float-start">Change Kaptip</span><span class="float-end">10 min</span><br>
-                                    <span class="float-start">Change Wire</span><span class="float-end">10 min</span><br>
-                                    <span class="float-start">Sensor Problem</span><span class="float-end">10 min</span><br>
-                                    <span class="float-start">Jig Problem</span><span class="float-end">10 min</span><br>
-                                    <span class="float-start">Others Stop</span><span class="float-end">5 min</span><br>
+                                    <span class="float-start">Change Nozle</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Change Kaptip</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Change Wire</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Sensor Problem</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Jig Problem</span><span class="float-end">0 min</span><br>
+                                    <span class="float-start">Others Stop</span><span class="float-end">0 min</span><br>
                                 </div>
                             </div>
                             <div class="panel">
@@ -287,11 +267,11 @@
                                     <h4 class="panel-title">Quality Reject</h4>
                                 </div>
                                 <div class="panel-body bg-default">
-                                    <span class="float-start">Undercut</span><span class="float-end">3 pcs</span><br>
-                                    <span class="float-start">Overlap</span><span class="float-end">5 pcs</span><br>
-                                    <span class="float-start">Porosity</span><span class="float-end">1 pcs</span><br>
-                                    <span class="float-start">Incomplete Penetration</span><span class="float-end">1 pcs</span><br>
-                                    <span class="float-start">Others</span><span class="float-end">1 pcs</span><br>
+                                    <span class="float-start">Undercut</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Overlap</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Porosity</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Incomplete Penetration</span><span class="float-end">0 pcs</span><br>
+                                    <span class="float-start">Others</span><span class="float-end">0 pcs</span><br>
                                 </div>
                             </div>
                         </div>
